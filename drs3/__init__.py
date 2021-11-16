@@ -13,19 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Entrypoint of the package"""
+"""This service implements the GA4GH DRS, while providing the option
+to serve files from localstack S3.
+"""
 
-from ghga_service_chassis_lib.api import run_server
-
-from .api.main import app  # noqa: F401 pylint: disable=unused-import
-from .config import get_config
-
-
-def run():
-    """Run the service"""
-    # Please adapt to package name
-    run_server(app="my_microservice.__main__:app", config=get_config())
-
-
-if __name__ == "__main__":
-    run()
+__version__ = "0.1.0"

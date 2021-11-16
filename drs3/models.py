@@ -13,7 +13,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Package containing integration tests.
-The __init__ module contains a skeleton of the test framework.
-"""
+"""Defines all dataclasses/classes pertaining to a data model or schema"""

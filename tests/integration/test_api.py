@@ -15,29 +15,7 @@
 
 """Test the api module"""
 
-from fastapi import status
-from fastapi.testclient import TestClient
 
-from my_microservice.api.main import app
-
-
-def test_index():
-    """Test the index endpoint"""
-
-    client = TestClient(app)
-    response = client.get("/")
-
-    assert response.status_code == status.HTTP_200_OK
-    assert response.text == '"Hello World."'
-
-
-def test_greet():
-    """Test the greet endpoint"""
-
-    name = "Friendly Tester"
-
-    client = TestClient(app)
-    response = client.get(f"/greet/{name}")
-
-    assert response.status_code == status.HTTP_200_OK
-    assert name in response.json()["message"]
+def test_dummy():
+    """always passes"""
+    assert True

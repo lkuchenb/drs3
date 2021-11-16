@@ -16,24 +16,41 @@
 """Config Parameter Modeling and Parsing"""
 
 from functools import lru_cache
+from typing import List, Literal, Optional
 
-from ghga_service_chassis_lib.api import ApiConfigBase
 from ghga_service_chassis_lib.config import config_from_yaml
 from ghga_service_chassis_lib.pubsub import PubSubConfigBase
 
-from .models import SupportedLanguages
+LogLevel = Literal["critical", "error", "warning", "info", "debug", "trace"]
 
 
-@config_from_yaml(prefix="my-microservice")
-class Config(ApiConfigBase, PubSubConfigBase):
+@config_from_yaml(prefix="drs3")
+class Config(PubSubConfigBase):
     """Config parameters and their defaults."""
 
-    # config parameter needed for the api server
-    # are inherited from ApiConfigBase;
-    # config parameter needed for the api server
+    # config parameter needed for rabbitmq server
     # are inherited from PubSubConfigBase;
 
-    language: SupportedLanguages = "Croatian"
+    # config parameter needed for drs3
+    host: str = "127.0.0.1"
+    port: int = 8080
+    log_level: LogLevel = "info"
+    auto_reload: bool = False
+    workers: int = 1
+
+    api_route: str = "/ga4gh/drs/v1"
+    custom_spec_url: Optional[str] = None
+    rabbitmq_host: str = "rabbitmq"
+    rabbitmq_port: int = 5672
+    topic_name_download_requested: str = "download_request"
+    db_url: str = "postgresql://admin:admin@postgresql/storage"
+    s3_url: str = "http://s3-localstack:4566"
+    drs_self_url: str = "drs://localhost:8080/"
+
+    cors_allowed_origins: List[str] = []
+    cors_allow_credentials: bool = False
+    cors_allowed_methods: List[str] = []
+    cors_allowed_headers: List[str] = []
 
 
 @lru_cache

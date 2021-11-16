@@ -13,6 +13,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Short description of package"""  # Please adapt to package
 
-__version__ = "0.1.0"
+"""
+Entrypoint for the package.
+"""
+
+from wsgiref.simple_server import make_server
+
+from .api.main import get_app
+from .config import get_config
+
+app = get_app()
+config = get_config()
+
+
+def run() -> None:
+    """
+    Starts backend server
+    """
+    server = make_server(config.host, config.port, app)
+    server.serve_forever()
+
+
+if __name__ == "__main__":
+    run()

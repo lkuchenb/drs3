@@ -1,4 +1,7 @@
 #!/bin/bash
 
-# adapt to package name
-my-microservice --config /workspace/.devcontainer/dev_config.yaml
+# cd into .devcontainer dir so that the config yaml
+# is considered:
+cd /workspace/.devcontainer
+
+drs3
