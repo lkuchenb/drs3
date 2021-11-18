@@ -15,45 +15,36 @@
 
 """Config Parameter Modeling and Parsing"""
 
-from functools import lru_cache
-from typing import List, Literal, Optional
+from typing import Literal, Optional
 
+from ghga_service_chassis_lib.api import ApiConfigBase
 from ghga_service_chassis_lib.config import config_from_yaml
+from ghga_service_chassis_lib.postgresql import PostgresqlConfigBase
 from ghga_service_chassis_lib.pubsub import PubSubConfigBase
+from ghga_service_chassis_lib.s3 import S3ConfigBase
 
 LogLevel = Literal["critical", "error", "warning", "info", "debug", "trace"]
 
 
 @config_from_yaml(prefix="drs3")
-class Config(PubSubConfigBase):
+class Config(ApiConfigBase, PubSubConfigBase, PostgresqlConfigBase, S3ConfigBase):
     """Config parameters and their defaults."""
 
-    # config parameter needed for rabbitmq server
-    # are inherited from PubSubConfigBase;
+    # Config parameter needed for:
+    #   - the rabbitmq server
+    #   - the web server
+    #   - the PostgreSQL database
+    #   - the S3 interface
+    # are inherited.
 
-    # config parameter needed for drs3
-    host: str = "127.0.0.1"
-    port: int = 8080
-    log_level: LogLevel = "info"
-    auto_reload: bool = False
-    workers: int = 1
-
+    # Following config parameter are specifically needed for drs3:
     api_route: str = "/ga4gh/drs/v1"
-    custom_spec_url: Optional[str] = None
-    rabbitmq_host: str = "rabbitmq"
-    rabbitmq_port: int = 5672
-    topic_name_download_requested: str = "download_request"
-    db_url: str = "postgresql://admin:admin@postgresql/storage"
-    s3_url: str = "http://s3-localstack:4566"
     drs_self_url: str = "drs://localhost:8080/"
+    custom_spec_url: Optional[str] = None
 
-    cors_allowed_origins: List[str] = []
-    cors_allow_credentials: bool = False
-    cors_allowed_methods: List[str] = []
-    cors_allowed_headers: List[str] = []
+    topic_name_download_requested: str = "download_request"
+
+    s3_outbox_bucket_id: str
 
 
-@lru_cache
-def get_config():
-    """Get runtime configuration."""
-    return Config()
+config = Config()

@@ -20,97 +20,29 @@ Additional endpoints might be structured in dedicated modules
 """
 
 
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pyramid.config import Configurator
 from pyramid.events import NewRequest
-from pyramid.httpexceptions import HTTPNotFound
 from pyramid.request import Request
 from pyramid.view import view_config
 
-from ..config import get_config
+from ..config import Config, config
 from ..custom_openapi3.custom_explorer_view import add_custom_explorer_view
-from ..dao.db import get_session
-from ..dao.db_models import DrsObject
+from ..models import DrsObjectServe
 from .cors import cors_header_response_callback_factory
 
-CONFIG_SETTINGS = get_config()
-S3_URL = CONFIG_SETTINGS.s3_url
 
-
-@dataclass
-class AccessURL:
-    """Describes the URL for accessing the
-    actual bytes of the object."""
-
-    url: str
-
-    def __json__(self, _: Optional[Request] = None) -> Dict[str, str]:
-        """JSON-renderer for this object."""
-        return {"url": self.url}
-
-
-@dataclass
-class AccessMethod:
-    """An AccessURL"""
-
-    type: str = "s3"  # currently only s3 is supported
-    # At least one of the two has to be provided:
-    access_url: Optional[AccessURL] = None
-    access_id: Optional[str] = None
-
-    def __json__(self, _: Optional[Request] = None) -> Dict[str, Any]:
-        """JSON-renderer for this object."""
-        return_dict: Dict[str, Any] = {"type": self.type}
-        if self.access_url:
-            return_dict["access_url"] = self.access_url.__json__()
-        if self.access_id:
-            return_dict["access_id"] = self.access_id
-
-        return return_dict
-
-
-@dataclass
-class DrsReturnObject:
-    """A DrsObject"""
-
-    id: str
-    self_uri: str
-    size: int
-    created_time: str
-    checksums: list
-    access_methods: Optional[List[AccessMethod]] = None
-
-    def __json__(self, _: Optional[Request] = None) -> Dict[str, Any]:
-        """JSON-renderer for this object."""
-
-        return_dict = {
-            "id": self.id,
-            "self_uri": self.self_uri,
-            "size": self.size,
-            "created_time": self.created_time,
-            "checksums": self.checksums,
-        }
-
-        if self.access_methods:
-            return_dict["access_methods"] = [
-                access_method.__json__() for access_method in self.access_methods
-            ]
-
-        return return_dict
-
-
-def get_app(config_settings=CONFIG_SETTINGS) -> Any:
+def get_app(config_: Config = config) -> Any:
     """
     Builds the Pyramid app
     Args:
-        config_settings: Settings for the application
+        config_: Settings for the application
     Returns:
         An instance of Pyramid WSGI app
     """
-    api_route = Path(config_settings.api_route)
+    api_route = Path(config_.api_route)
     openapi_spec_path = Path(__file__).parent / "openapi.yaml"
     with Configurator() as pyramid_config:
         pyramid_config.add_directive(
@@ -118,7 +50,7 @@ def get_app(config_settings=CONFIG_SETTINGS) -> Any:
         )
 
         pyramid_config.add_subscriber(
-            cors_header_response_callback_factory(config_settings), NewRequest
+            cors_header_response_callback_factory(config_), NewRequest
         )
 
         pyramid_config.include("pyramid_openapi3")
@@ -126,7 +58,7 @@ def get_app(config_settings=CONFIG_SETTINGS) -> Any:
             openapi_spec_path, route=str(api_route / "openapi.yaml")
         )
         pyramid_config.pyramid_custom_openapi3_add_explorer(
-            route=str(api_route), custom_spec_url=config_settings.custom_spec_url
+            route=str(api_route), custom_spec_url=config_.custom_spec_url
         )
 
         pyramid_config.add_route("hello", "/")
@@ -154,7 +86,9 @@ def index(_, __):
 @view_config(
     route_name="objects_id", renderer="json", openapi=True, request_method="GET"
 )
-def get_objects_id(request: Request) -> DrsReturnObject:
+def get_objects_id(
+    request: Request,  # pylint: disable=unused-argument
+) -> DrsObjectServe:
     """
     Get info about a ``DrsObject``.
     Args:
@@ -162,39 +96,7 @@ def get_objects_id(request: Request) -> DrsReturnObject:
     Returns:
         An instance of ``DrsReturnObject``
     """
-
-    object_id = request.matchdict["object_id"]
-
-    db = get_session()
-    target_object = (
-        db.query(DrsObject).filter(DrsObject.drs_id == object_id).one_or_none()
-    )
-
-    if target_object is not None:
-
-        access_url = AccessURL(url=target_object.path)
-        access_method = AccessMethod(access_url=access_url)
-        drs_object = DrsReturnObject(
-            id=target_object.drs_id,
-            self_uri=CONFIG_SETTINGS.drs_self_url + target_object.drs_id,
-            size=target_object.size,
-            created_time=target_object.created_time.isoformat() + "Z",
-            checksums=[
-                {
-                    "checksum": target_object.checksum_md5,
-                    "type": "md5",
-                }
-            ],
-            access_methods=[access_method],
-        )
-
-        # send_message(object_id, "s3", "user_id")
-
-        return drs_object
-
-    raise HTTPNotFound(
-        json={"msg": "The requested 'DrsObject' wasn't found", "status_code": 404}
-    )
+    ...
 
 
 @view_config(route_name="health", renderer="json", openapi=False, request_method="GET")

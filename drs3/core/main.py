@@ -13,9 +13,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Test the api module"""
-
-
-def test_dummy():
-    """always passes"""
-    assert True
+"""Main business-logic of this service"""

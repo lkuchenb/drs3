@@ -15,9 +15,15 @@
 
 """Defines all database specific ORM classes (e.g. for SQLAlchemy)"""
 
-from sqlalchemy import Column, DateTime, Integer, String
 
-from .db import Base
+import uuid
+
+from sqlalchemy import Column, DateTime, Integer, String
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm.decl_api import DeclarativeMeta
+
+Base: DeclarativeMeta = declarative_base()
 
 
 class DrsObject(Base):
@@ -26,9 +32,36 @@ class DrsObject(Base):
     """
 
     __tablename__ = "drs_objects"
-    id = Column(Integer, primary_key=True)
-    drs_id = Column(String, nullable=False, unique=True)
-    path = Column(String, nullable=False)
-    size = Column(Integer, nullable=False)
-    created_time = Column(DateTime, nullable=False)
-    checksum_md5 = Column(String, nullable=False)
+    id = Column(
+        UUID(
+            as_uuid=True,
+        ),
+        default=uuid.uuid4,
+        primary_key=True,
+        doc="Service-internal file ID.",
+    )
+    external_id = Column(
+        String,
+        nullable=False,
+        unique=True,
+        doc=(
+            "ID used to refer to this file across services."
+            + " May be presented to users."
+            + " This string is also used to derive the DRS ID."
+        ),
+    )
+    md5_checksum = Column(
+        String,
+        nullable=False,
+        default=None,
+        doc=("MD5 checksum of the object content."),
+    )
+    size = Column(
+        Integer,
+        nullable=False,
+        default=None,
+        doc="Size of the object content in bytes.",
+    )
+    registration_date = Column(
+        DateTime, nullable=False, doc="Date/time when the object was registered."
+    )
