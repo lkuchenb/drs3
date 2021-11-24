@@ -19,7 +19,7 @@ topic_name_download_requested: download_request
 db_url: postgresql://admin:admin@postgresql/storage
 db_print_logs: false
 
-s3_endpoint_url: http://internal_file_registry_service_s3:4566
+s3_endpoint_url: http://drs3:4566
 s3_access_key_id: test
 s3_secret_access_key: test
 s3_outbox_bucket_id: outbox
