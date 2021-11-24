@@ -21,16 +21,16 @@ Entrypoint for the package.
 from wsgiref.simple_server import make_server
 
 from .api.main import get_app
-from .config import Config, config
+from .config import CONFIG, Config
 
 app = get_app()
 
 
-def run(config_: Config = config) -> None:
+def run(config: Config = CONFIG) -> None:
     """
     Starts backend server
     """
-    server = make_server(config_.host, config_.port, app)
+    server = make_server(config.host, config.port, app)
     server.serve_forever()
 
 

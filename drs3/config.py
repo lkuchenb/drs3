@@ -47,4 +47,4 @@ class Config(ApiConfigBase, PubSubConfigBase, PostgresqlConfigBase, S3ConfigBase
     s3_outbox_bucket_id: str
 
 
-config = Config()
+CONFIG = Config()

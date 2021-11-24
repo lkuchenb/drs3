@@ -23,10 +23,10 @@ from ghga_service_chassis_lib.utils import DaoGenericBase
 from sqlalchemy.future import select
 
 from .. import models
-from ..config import config
+from ..config import CONFIG
 from . import db_models
 
-psql_connector = SyncPostgresqlConnector(config)
+psql_connector = SyncPostgresqlConnector(CONFIG)
 
 
 class DrsObjectNotFoundError(RuntimeError):

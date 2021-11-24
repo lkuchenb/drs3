@@ -28,13 +28,13 @@ from pyramid.events import NewRequest
 from pyramid.request import Request
 from pyramid.view import view_config
 
-from ..config import Config, config
+from ..config import CONFIG, Config
 from ..custom_openapi3.custom_explorer_view import add_custom_explorer_view
 from ..models import DrsObjectServe
 from .cors import cors_header_response_callback_factory
 
 
-def get_app(config_: Config = config) -> Any:
+def get_app(config: Config = CONFIG) -> Any:
     """
     Builds the Pyramid app
     Args:
@@ -42,7 +42,7 @@ def get_app(config_: Config = config) -> Any:
     Returns:
         An instance of Pyramid WSGI app
     """
-    api_route = Path(config_.api_route)
+    api_route = Path(config.api_route)
     openapi_spec_path = Path(__file__).parent / "openapi.yaml"
     with Configurator() as pyramid_config:
         pyramid_config.add_directive(
@@ -50,7 +50,7 @@ def get_app(config_: Config = config) -> Any:
         )
 
         pyramid_config.add_subscriber(
-            cors_header_response_callback_factory(config_), NewRequest
+            cors_header_response_callback_factory(config), NewRequest
         )
 
         pyramid_config.include("pyramid_openapi3")
@@ -58,7 +58,7 @@ def get_app(config_: Config = config) -> Any:
             openapi_spec_path, route=str(api_route / "openapi.yaml")
         )
         pyramid_config.pyramid_custom_openapi3_add_explorer(
-            route=str(api_route), custom_spec_url=config_.custom_spec_url
+            route=str(api_route), custom_spec_url=config.custom_spec_url
         )
 
         pyramid_config.add_route("hello", "/")
@@ -96,7 +96,10 @@ def get_objects_id(
     Returns:
         An instance of ``DrsReturnObject``
     """
-    ...
+
+    # 1. Check for file in database
+    # 2. Check if file exists in outbox
+    # 3. Publish Message (GDEV-277)
 
 
 @view_config(route_name="health", renderer="json", openapi=False, request_method="GET")
