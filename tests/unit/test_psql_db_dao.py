@@ -16,7 +16,6 @@
 """Tests the database DAO implementation base on PostgreSQL"""
 
 import pytest
-from ghga_service_chassis_lib.postgresql import SyncPostgresqlConnector
 from ghga_service_chassis_lib.postgresql_testing import config_from_psql_container
 from testcontainers.postgres import PostgresContainer
 
@@ -40,8 +39,7 @@ def configure_database_dao(postgres: PostgresContainer) -> PostgresDatabase:
     """
     config = config_from_psql_container(postgres)
     populate_db(config.db_url)
-    psql_connector = SyncPostgresqlConnector(config)
-    return PostgresDatabase(postgresql_connector=psql_connector)
+    return PostgresDatabase(config)
 
 
 def test_get_existing_file_obj():
