@@ -93,7 +93,7 @@ class PostgresDatabase(DatabaseDao):
     def __init__(self, config: PostgresqlConfigBase = CONFIG):
         """initialze DAO implementation"""
 
-        super().__init__(config=config)
+        super().__init__()
         self._postgresql_connector = SyncPostgresqlConnector(config)
 
         # will be defined on __enter__:
@@ -104,11 +104,12 @@ class PostgresDatabase(DatabaseDao):
         """Setup database connection"""
 
         self._session_cm = self._postgresql_connector.transactional_session()
-        self._session = self._session_cm.__enter__()
+        self._session = self._session_cm.__enter__()  # pylint: disable=no-member
         return self
 
     def __exit__(self, error_type, error_value, error_traceback):
         """Teardown database connection"""
+        # pylint: disable=no-member
         self._session_cm.__exit__(error_type, error_value, error_traceback)
 
     def _get_orm_drs_object(self, external_id: str) -> db_models.DrsObject:
