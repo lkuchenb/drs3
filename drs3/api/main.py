@@ -33,6 +33,7 @@ from ..config import CONFIG, Config
 from ..custom_openapi3.custom_explorer_view import add_custom_explorer_view
 from ..dao import Database, DrsObjectNotFoundError, ObjectStorage
 from ..models import AccessMethod, AccessURL, Checksum, DrsObjectServe
+from ..pubsub.publish import publish_topic
 from .cors import cors_header_response_callback_factory
 
 
@@ -138,6 +139,21 @@ def get_objects_id(
                     AccessMethod(access_url=AccessURL(url=path), type="s3")
                 ],
             )
+
+        # Publish non_staged_file_requested
+        message = {
+            "request_id": None,
+            "file_id": db_object_info.id,
+            "drs_id": db_object_info.external_id,
+            "timestamp": db_object_info.registration_date,
+        }
+        publish_topic(
+            config.rabbitmq_host,
+            config.rabbitmq_port,
+            "non_staged_file_requested",
+            message,
+        )
+
         # tell client to retry after 5 minutes
         return HTTPAccepted(retry_after="300")
 
