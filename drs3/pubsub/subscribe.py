@@ -40,7 +40,7 @@ def process_message(message: dict):
         db_object_info = database.get_drs_object(message["file_id"])
 
         # Check if file is in outbox
-        with ObjectStorage() as storage:
+        with ObjectStorage(config=CONFIG) as storage:
             if storage.does_object_exist(
                 config.s3_outbox_bucket_id, message["file_id"]
             ):
