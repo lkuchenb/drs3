@@ -21,7 +21,6 @@ repos:
       - id: pretty-format-json
         args: [--autofix]
         exclude: "devcontainer.json"
-        args: [--autofix]
       - id: check-merge-conflict
       - id: check-symlinks
       - id: check-executables-have-shebangs
