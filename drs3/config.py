@@ -38,6 +38,8 @@ class Config(ApiConfigBase, PubSubConfigBase, PostgresqlConfigBase, S3ConfigBase
     # are inherited.
 
     # Following config parameter are specifically needed for drs3:
+    service_name: str = "drs3"
+
     api_route: str = "/ga4gh/drs/v1"
     drs_self_url: str = "drs://localhost:8080/"
     custom_spec_url: Optional[str] = None

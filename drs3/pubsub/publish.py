@@ -26,20 +26,24 @@ from ghga_service_chassis_lib.pubsub import AmqpTopic
 HERE = Path(__file__).parent.resolve()
 
 
-def publish_topic(host, port, topic_name, message):
+def publish_topic(db_object_info, config):
     """
     Publishes a message to a specified topic
     """
-
+    message = {
+        "request_id": None,
+        "file_id": db_object_info.id,
+        "drs_id": db_object_info.external_id,
+        "timestamp": db_object_info.registration_date,
+    }
     # read json schema:
     with open(f"{HERE}/{topic_name}.json", "r", encoding="utf-8") as schema_file:
         message_schema = json.load(schema_file)
 
     # create a topic object:
     topic = AmqpTopic(
-        connection_params=pika.ConnectionParameters(host=host, port=port),
+        config=config,
         topic_name=topic_name,
-        service_name="drs3",
         json_schema=message_schema,
     )
 
