@@ -76,7 +76,7 @@ class DatabaseDao(DaoGenericBase):
         """Register a new DRS object to the database."""
         ...
 
-    def update_drs_object(self, drs_object: models.DrsObjectInternal) -> None:
+    def update_drs_object(self, external_id: str, drs_object: models.DrsObjectUpdate) -> None:
         """Update information for a DRS object in the database."""
         ...
 
@@ -152,7 +152,7 @@ class PostgresDatabase(DatabaseDao):
         orm_drs_object = db_models.DrsObject(**drs_object_dict)
         self._session.add(orm_drs_object)
 
-    def update_drs_object(self, drs_object: models.DrsObjectInternal) -> None:
+    def update_drs_object(self, external_id: str, drs_object: models.DrsObjectUpdate) -> None:
         """Update information for a DRS object in the database."""
 
         orm_drs_object = self._get_orm_drs_object(external_id=drs_object.external_id)
