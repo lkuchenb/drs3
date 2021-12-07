@@ -13,9 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Subpackage defineing functions for publishing to or subscribing from
-asynchronous messaging topics.
-"""
+"""Test the messaging API (pubsub)"""
 
-from .publish import publish_stage_request  # noqa: F401
+# from ghga_service_chassis_lib.utils import exec_with_timeout
+
+# from drs3.pubsub import publish_stage_request, schemas
+
+# from ..fixtures import TEST_MESSAGES, amqp_fixture, get_config  # noqa: F401
+
+
+# def test_publish_stage_request(psql_fixture, s3_fixture, amqp_fixture):
+#     ...

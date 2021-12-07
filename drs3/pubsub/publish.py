@@ -33,7 +33,9 @@ def publish_stage_request(drs_object, config):
     topic_name = config.non_staged_file_requested
 
     # read json schema:
-    with open(f"{HERE}/{topic_name}.json", "r", encoding="utf-8") as schema_file:
+    with open(
+        f"{HERE}/schemas/{topic_name}.json", "r", encoding="utf-8"
+    ) as schema_file:
         message_schema = json.load(schema_file)
 
     message = {

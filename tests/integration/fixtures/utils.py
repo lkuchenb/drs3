@@ -12,10 +12,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""General testing utilities"""
 
-"""
-Subpackage defineing functions for publishing to or subscribing from
-asynchronous messaging topics.
-"""
+from pathlib import Path
 
-from .publish import publish_stage_request  # noqa: F401
+BASE_DIR = Path(__file__).parent.resolve()
