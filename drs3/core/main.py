@@ -14,3 +14,55 @@
 # limitations under the License.
 
 """Main business-logic of this service"""
+
+from typing import Callable
+
+from ..config import CONFIG, Config
+from ..dao import Database, DrsObjectNotFoundError, ObjectStorage
+from ..models import AccessMethod, AccessURL, Checksum, DrsObjectServe
+
+
+def get_drs_object_serve(
+    drs_id: str,
+    make_stage_request: Callable[[dict, Config], None],
+    config: Config = CONFIG,
+):
+    """
+    Gets the drs object for serving, if it exists in the outbox
+    """
+
+    with Database(config=config) as database:
+        try:
+            db_object_info = database.get_drs_object(drs_id)
+        except DrsObjectNotFoundError:  # pylint: disable=try-except-raise
+            raise
+
+    # If object exists in Database, see if it exists in outbox
+
+    bucket_id = config.s3_outbox_bucket_id
+
+    with ObjectStorage(config=config) as storage:
+        if storage.does_object_exist(bucket_id, drs_id):
+
+            # create presigned url
+            download_url = storage.get_object_download_url(bucket_id, drs_id)
+
+            # return DRS Object
+            return DrsObjectServe(
+                id=drs_id,
+                self_uri=f"{config.drs_self_url}/{drs_id}",
+                size=db_object_info.size,
+                created_time=db_object_info.registration_date,
+                checksums=[Checksum(checksum=db_object_info.md5_checksum, type="md5")],
+                access_methods=[
+                    AccessMethod(access_url=AccessURL(url=download_url), type="s3")
+                ],
+            )
+
+    # If the object does not exist, make a stage request
+    make_stage_request(
+        db_object_info,
+        config,
+    )
+
+    return None

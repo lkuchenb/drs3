@@ -30,10 +30,11 @@ from pyramid.request import Request
 from pyramid.view import view_config
 
 from ..config import CONFIG, Config
+from ..core.main import get_drs_object_serve
 from ..custom_openapi3.custom_explorer_view import add_custom_explorer_view
-from ..dao import Database, DrsObjectNotFoundError, ObjectStorage
-from ..models import AccessMethod, AccessURL, Checksum, DrsObjectServe
-from ..pubsub.publish import publish_topic
+from ..dao import DrsObjectNotFoundError
+from ..models import DrsObjectServe
+from ..pubsub.publish import publish_stage_request
 from .cors import cors_header_response_callback_factory
 
 
@@ -100,62 +101,28 @@ def get_objects_id(
         An instance of ``DrsReturnObject``
     """
 
-    object_id = request.matchdict["object_id"]
+    drs_id = request.matchdict["object_id"]
+
     config: Config = CONFIG
 
-    with Database(config=config) as database:
-        try:
-            db_object_info = database.get_drs_object(object_id)
-        except DrsObjectNotFoundError as object_not_found_error:
-            raise HTTPNotFound(
-                json={
-                    "msg": "The requested DRSObject does not exist",
-                    "status_code": 404,
-                }
-            ) from object_not_found_error
-
-    # If object exists in Database, see if it exists in outbox
-
-    bucket_id = config.s3_outbox_bucket_id
-
-    with ObjectStorage(config=config) as storage:
-        if storage.does_object_exist(bucket_id, object_id):
-
-            # create presigned url
-            response = storage.get_object_download_url(bucket_id, object_id)
-
-            # change path to localhost
-            path = "http://localhost:4566" + response.removeprefix(
-                config.s3_endpoint_url
-            )
-
-            return DrsObjectServe(
-                id=object_id,
-                self_uri=f"{config.drs_self_url}/{object_id}",
-                size=db_object_info.size,
-                created_time=db_object_info.registration_date,
-                checksums=[Checksum(checksum=db_object_info.md5_checksum, type="md5")],
-                access_methods=[
-                    AccessMethod(access_url=AccessURL(url=path), type="s3")
-                ],
-            )
-
-        # Publish non_staged_file_requested
-        message = {
-            "request_id": None,
-            "file_id": db_object_info.id,
-            "drs_id": db_object_info.external_id,
-            "timestamp": db_object_info.registration_date,
-        }
-        publish_topic(
-            config.rabbitmq_host,
-            config.rabbitmq_port,
-            "non_staged_file_requested",
-            message,
+    try:
+        drs_object = get_drs_object_serve(
+            drs_id, make_stage_request=publish_stage_request, config=config
         )
+    except DrsObjectNotFoundError as object_not_found_error:
+        raise HTTPNotFound(
+            json={
+                "msg": "The requested DRSObject does not exist",
+                "status_code": 404,
+            }
+        ) from object_not_found_error
 
-        # tell client to retry after 5 minutes
-        return HTTPAccepted(retry_after="300")
+    if drs_object is not None:
+        # return the drs_object
+        return drs_object
+
+    # tell client to retry after 5 minutes
+    return HTTPAccepted(retry_after="300")
 
 
 @view_config(route_name="health", renderer="json", openapi=False, request_method="GET")

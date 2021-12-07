@@ -29,8 +29,6 @@ from .. import models
 from ..config import CONFIG
 from . import db_models
 
-psql_connector = SyncPostgresqlConnector(CONFIG)
-
 
 class DrsObjectNotFoundError(RuntimeError):
     """Thrown when trying to access a DrsObject with an external ID that doesn't

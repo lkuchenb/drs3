@@ -20,26 +20,33 @@ Publish asynchronous topics
 import json
 from pathlib import Path
 
-import pika
 from ghga_service_chassis_lib.pubsub import AmqpTopic
 
 HERE = Path(__file__).parent.resolve()
 
 
-def publish_topic(host, port, topic_name, message):
+def publish_stage_request(drs_object, config):
     """
     Publishes a message to a specified topic
     """
+
+    topic_name = config.non_staged_file_requested
 
     # read json schema:
     with open(f"{HERE}/{topic_name}.json", "r", encoding="utf-8") as schema_file:
         message_schema = json.load(schema_file)
 
+    message = {
+        "request_id": None,
+        "file_id": drs_object.id,
+        "drs_id": drs_object.external_id,
+        "timestamp": drs_object.registration_date,
+    }
+
     # create a topic object:
     topic = AmqpTopic(
-        connection_params=pika.ConnectionParameters(host=host, port=port),
+        config=config,
         topic_name=topic_name,
-        service_name="drs3",
         json_schema=message_schema,
     )
 

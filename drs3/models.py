@@ -28,14 +28,26 @@ from ghga_service_chassis_lib.object_storage_dao import (
 from pydantic import UUID4, BaseModel, validator
 
 
-class DrsObjectInitial(BaseModel):
+class DrsObjectBase(BaseModel):
+    """
+    A model containing the metadata needed to register a new DRS object.
+    """
+
+    md5_checksum: str
+    size: int
+
+    class Config:
+        """Additional pydantic configs."""
+
+        orm_mode = True
+
+
+class DrsObjectInitial(DrsObjectBase):
     """
     A model containing the metadata needed to register a new DRS object.
     """
 
     external_id: str
-    md5_checksum: str
-    size: int
 
     # pylint: disable=no-self-argument,no-self-use
     @validator("external_id")
@@ -51,20 +63,23 @@ class DrsObjectInitial(BaseModel):
 
         return value
 
-    class Config:
-        """Additional pydantic configs."""
 
-        orm_mode = True
+class DrsObjectUpdate(DrsObjectBase):
+    """
+    A model for describing all internally-relevant DrsObject metadata.
+    Only intended for service-internal use.
+    """
+
+    registration_date: datetime
 
 
-class DrsObjectInternal(DrsObjectInitial):
+class DrsObjectInternal(DrsObjectInitial, DrsObjectUpdate):
     """
     A model for describing all internally-relevant DrsObject metadata.
     Only intended for service-internal use.
     """
 
     id: UUID4
-    registration_date: datetime
 
 
 class AccessURL(BaseModel):

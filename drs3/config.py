@@ -42,7 +42,9 @@ class Config(ApiConfigBase, PubSubConfigBase, PostgresqlConfigBase, S3ConfigBase
     drs_self_url: str = "drs://localhost:8080/"
     custom_spec_url: Optional[str] = None
 
+    service_name: str = "drs3"
     topic_name_download_requested: str = "download_request"
+    topic_name_non_staged_file_requested: str = "non_staged_file_requested"
 
     s3_outbox_bucket_id: str
 
