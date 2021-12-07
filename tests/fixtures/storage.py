@@ -13,8 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""General testing utilities"""
+"""Storage fixtures"""
 
-from pathlib import Path
+from ghga_service_chassis_lib.object_storage_dao_testing import ObjectFixture
+from ghga_service_chassis_lib.utils import TEST_FILE_PATHS
 
-BASE_DIR = Path(__file__).parent.resolve()
+from .config import DEFAULT_CONFIG
+
+EXISTING_BUCKETS = [DEFAULT_CONFIG.s3_outbox_bucket_id]
+
+EXISTING_OBJECTS = [
+    # File located in the outbox:
+    ObjectFixture(
+        file_path=TEST_FILE_PATHS[0],
+        bucket_id=DEFAULT_CONFIG.s3_outbox_bucket_id,
+        object_id="myfile-11111111",
+    ),
+]

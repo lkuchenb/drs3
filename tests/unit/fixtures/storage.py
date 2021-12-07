@@ -13,8 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""General testing utilities"""
+"""Fixtures for testing the storage DAO"""
 
-from pathlib import Path
+from ghga_service_chassis_lib.object_storage_dao_testing import ObjectFixture
 
-BASE_DIR = Path(__file__).parent.resolve()
+from .utils import BASE_DIR
+
+EXISTING_OBJECT = ObjectFixture(
+    file_path=BASE_DIR / "test_file1.yaml",
+    bucket_id="ghgas-9992324243",
+    object_id="ghgaf-8234659943",
+)
+
+NOT_EXISTING_OBJECT = ObjectFixture(
+    file_path=BASE_DIR / "test_file2.yaml",
+    bucket_id="ghgas-3440345533",
+    object_id="ghgaf-5226343543",
+)

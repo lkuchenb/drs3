@@ -91,7 +91,7 @@ class PostgresDatabase(DatabaseDao):
     def __init__(self, config: PostgresqlConfigBase = CONFIG):
         """initialze DAO implementation"""
 
-        super().__init__()
+        super().__init__(config)
         self._postgresql_connector = SyncPostgresqlConnector(config)
 
         # will be defined on __enter__:
