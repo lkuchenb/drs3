@@ -29,7 +29,8 @@ from drs3.config import Config
 from drs3.dao import ObjectStorage
 from drs3.dao.db import PostgresDatabase
 
-from ..fixtures.psql import EXISTING_FILE_INFO, NOT_EXISTING_FILE_INFO, populate_db
+from ...fixtures.psql import EXISTING_FILE_INFOS, NON_EXISTING_FILE_INFOS, populate_db
+from ...fixtures.s3 import EXISTING_BUCKETS
 from .config import get_config
 from .storage import EXISTING_OBJECT, NOT_EXISTING_OBJECT, ObjectFixture
 
@@ -50,14 +51,14 @@ def psql_fixture() -> Generator[PsqlFixture, None, None]:
 
     with PostgresContainer() as postgres:
         config = get_config(psql_container=postgres)
-        populate_db(config.db_url, fixtures=[EXISTING_FILE_INFO])
+        populate_db(config.db_url, existing_file_infos=EXISTING_FILE_INFOS)
 
         with PostgresDatabase(config) as database:
             yield PsqlFixture(
                 config=config,
                 database=database,
-                existing_file_info=EXISTING_FILE_INFO,
-                not_existing_file_info=NOT_EXISTING_FILE_INFO,
+                existing_file_info=EXISTING_FILE_INFOS[0],
+                not_existing_file_info=NON_EXISTING_FILE_INFOS[0],
             )
 
 
@@ -81,11 +82,15 @@ def core_fixture() -> Generator[CoreFixture, None, None]:
             config = get_config(
                 localstack_container=localstack, psql_container=postgres
             )
-            populate_db(config.db_url, fixtures=[EXISTING_FILE_INFO])
+            populate_db(config.db_url, existing_file_infos=EXISTING_FILE_INFOS)
 
             with ObjectStorage(config=config) as storage:
-                populate_storage(storage=storage, fixtures=[EXISTING_OBJECT])
-                storage.create_bucket(config.s3_stage_bucket_id)
+                populate_storage(
+                    storage=storage,
+                    bucket_fixtures=EXISTING_BUCKETS,
+                    object_fixtures=[EXISTING_OBJECT],
+                )
+                storage.create_bucket(config.s3_outbox_bucket_id)
 
                 with PostgresDatabase(config) as database:
                     yield CoreFixture(
