@@ -13,19 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Fixtures for testing the storage DAO"""
+"""Read in schemas from json files"""
 
-from ghga_service_chassis_lib.object_storage_dao_testing import (
-    DEFAULT_NON_EXISTING_BUCKETS,
-    DEFAULT_NON_EXISTING_OBJECTS,
-)
-from ghga_service_chassis_lib.s3_testing import s3_fixture_factory
+import json
+from pathlib import Path
+from typing import Dict
 
-from .storage import EXISTING_BUCKETS, EXISTING_OBJECTS
+HERE = Path(__file__).parent.resolve()
 
-s3_fixture = s3_fixture_factory(
-    existing_buckets=EXISTING_BUCKETS,
-    non_existing_buckets=DEFAULT_NON_EXISTING_BUCKETS,
-    existing_objects=EXISTING_OBJECTS,
-    non_existing_objects=DEFAULT_NON_EXISTING_OBJECTS,
-)
+
+def read_schema(topic_name: str) -> Dict[str, object]:
+    """Read schemas from file"""
+    with open(HERE / f"{topic_name}.json", "r", encoding="utf8") as schema_file:
+        return json.load(schema_file)
+
+
+NON_STAGED_FILE_REQUESTED = read_schema("non_staged_file_requested")

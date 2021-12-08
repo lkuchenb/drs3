@@ -79,14 +79,6 @@ def get_app(config: Config = CONFIG) -> Any:
     return pyramid_config.make_wsgi_app()
 
 
-@view_config(route_name="hello", renderer="json", openapi=False, request_method="GET")
-def index(_, __):
-    """
-    Index Enpoint, returns 'Hello World'
-    """
-    return {"content": "Hello World!"}
-
-
 @view_config(
     route_name="objects_id", renderer="json", openapi=True, request_method="GET"
 )

@@ -30,7 +30,7 @@ def publish_stage_request(drs_object, config):
     Publishes a message to a specified topic
     """
 
-    topic_name = config.non_staged_file_requested
+    topic_name = config.topic_name_non_staged_file_requested
 
     # read json schema:
     with open(
@@ -39,10 +39,10 @@ def publish_stage_request(drs_object, config):
         message_schema = json.load(schema_file)
 
     message = {
-        "request_id": None,
-        "file_id": drs_object.id,
+        "request_id": "",
+        "file_id": drs_object.external_id,
         "drs_id": drs_object.external_id,
-        "timestamp": drs_object.registration_date,
+        "timestamp": drs_object.registration_date.isoformat(),
     }
 
     # create a topic object:

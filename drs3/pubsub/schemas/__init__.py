@@ -13,14 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Test the messaging API (pubsub)"""
+"""Package containing schemas."""
 
-# from ghga_service_chassis_lib.utils import exec_with_timeout
-
-# from drs3.pubsub import publish_stage_request, schemas
-
-# from ..fixtures import TEST_MESSAGES, amqp_fixture, get_config  # noqa: F401
-
-
-# def test_publish_stage_request(psql_fixture, s3_fixture, amqp_fixture):
-#     ...
+from .read_schemas import NON_STAGED_FILE_REQUESTED  # noqa: F401

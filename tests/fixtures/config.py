@@ -39,6 +39,8 @@ def get_config(
         for source in sources:
             sources_dict.update(**source.dict())
 
+    sources_dict["topic_name_non_staged_file_requested"] = "non_staged_file_requested"
+
     return Config(config_yaml=default_config_yaml, **sources_dict)
 
 

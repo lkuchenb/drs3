@@ -14,7 +14,7 @@ custom_spec_url: null
 
 rabbitmq_host: "rabbitmq"
 rabbitmq_port: 5672
-topic_name_download_requested: download_request
+topic_name_non_staged_file_requested: "non_staged_file_requested"
 
 db_url: postgresql://admin:admin@postgresql/storage
 db_print_logs: false
