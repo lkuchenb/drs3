@@ -15,15 +15,12 @@
 
 """Test the messaging API (pubsub)"""
 
-import uuid
 from datetime import datetime
 
 from drs3.models import DrsObjectInternal
 from drs3.pubsub import publish_stage_request, schemas
 
-from ..fixtures.config import get_config
-from ..fixtures.pubsub import amqp_fixture  # noqa: F401
-from ..fixtures.storage import EXISTING_OBJECTS
+from ..fixtures import FILES, amqp_fixture, get_config  # noqa: F401
 
 
 def test_publish_stage_request(amqp_fixture):  # noqa: F811
@@ -32,11 +29,11 @@ def test_publish_stage_request(amqp_fixture):  # noqa: F811
     config = get_config(sources=[amqp_fixture.config])
 
     drs_object = DrsObjectInternal(
-        id=uuid.uuid4(),
-        external_id=EXISTING_OBJECTS[0].object_id,
+        id=FILES["in_registry"].id,
+        external_id=FILES["in_registry"].external_id,
         registration_date=datetime.now(),
-        md5_checksum=EXISTING_OBJECTS[0].md5,
-        size=1000,
+        md5_checksum=FILES["in_registry"].file_info.md5_checksum,
+        size=FILES["in_registry"].file_info.size,
     )
 
     # initialize downstream test service that will receive
@@ -53,4 +50,4 @@ def test_publish_stage_request(amqp_fixture):  # noqa: F811
 
     # expect stage confirmation message:
     downstream_message = downstream_subscriber.subscribe(timeout_after=2)
-    assert downstream_message["file_id"] == EXISTING_OBJECTS[0].object_id
+    assert downstream_message["file_id"] == FILES["in_registry"].external_id

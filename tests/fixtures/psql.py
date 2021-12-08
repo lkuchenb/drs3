@@ -12,6 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Copyright 2021 Universität Tübingen, DKFZ and EMBL
 # for the German Human Genome-Phenome Archive (GHGA)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,9 +34,6 @@ from datetime import datetime
 from typing import Generator, List
 
 import pytest
-from ghga_service_chassis_lib.object_storage_dao_testing import (
-    DEFAULT_NON_EXISTING_OBJECTS,
-)
 from ghga_service_chassis_lib.postgresql import PostgresqlConfigBase
 from ghga_service_chassis_lib.postgresql_testing import config_from_psql_container
 from sqlalchemy import create_engine
@@ -46,28 +44,19 @@ from drs3 import models
 from drs3.dao import db_models
 from drs3.dao.db import PostgresDatabase
 
-from .storage import EXISTING_OBJECTS
+from . import state
 
-EXISTING_FILE_INFOS = [
-    models.DrsObjectInitial(
-        external_id=existing_object.object_id,
-        md5_checksum=existing_object.md5,
-        size=1000,  # not the real size
-    )
-    for existing_object in EXISTING_OBJECTS
-]
+existing_file_infos: List[models.DrsObjectInitial] = []
+non_existing_file_infos: List[models.DrsObjectInitial] = []
 
-NON_EXISTING_FILE_INFOS = [
-    models.DrsObjectInitial(
-        external_id=non_existing_object.object_id,
-        md5_checksum=non_existing_object.md5,
-        size=1000,  # not the real size
-    )
-    for non_existing_object in DEFAULT_NON_EXISTING_OBJECTS
-]
+for file in state.FILES.values():
+    if file.in_outbox and file.populate_db:
+        existing_file_infos.append(file.file_info)
+    else:
+        non_existing_file_infos.append(file.file_info)
 
 
-def populate_db(db_url: str, existing_file_infos: List[models.DrsObjectInitial]):
+def populate_db(db_url: str, file_infos: List[models.DrsObjectInitial]):
     """Create and populates the DB"""
 
     # setup database and tables:
@@ -77,7 +66,7 @@ def populate_db(db_url: str, existing_file_infos: List[models.DrsObjectInitial])
     # populate with test data:
     session_factor = sessionmaker(engine)
     with session_factor() as session:
-        for existing_file_info in existing_file_infos:
+        for existing_file_info in file_infos:
             param_dict = {
                 **existing_file_info.dict(),
                 "registration_date": datetime.now(),
@@ -88,7 +77,7 @@ def populate_db(db_url: str, existing_file_infos: List[models.DrsObjectInitial])
 
 
 @dataclass
-class PsqlFixture:
+class PsqlState:
     """Info yielded by the `psql_fixture` function"""
 
     config: PostgresqlConfigBase
@@ -98,17 +87,17 @@ class PsqlFixture:
 
 
 @pytest.fixture
-def psql_fixture() -> Generator[PsqlFixture, None, None]:
+def psql_fixture() -> Generator[PsqlState, None, None]:
     """Pytest fixture for tests of the Prostgres DAO implementation."""
 
     with PostgresContainer() as postgres:
         config = config_from_psql_container(postgres)
-        populate_db(config.db_url, existing_file_infos=EXISTING_FILE_INFOS)
+        populate_db(config.db_url, file_infos=existing_file_infos)
 
         with PostgresDatabase(config) as database:
-            yield PsqlFixture(
+            yield PsqlState(
                 config=config,
                 database=database,
-                existing_file_infos=EXISTING_FILE_INFOS,
-                non_existing_file_infos=NON_EXISTING_FILE_INFOS,
+                existing_file_infos=existing_file_infos,
+                non_existing_file_infos=non_existing_file_infos,
             )
