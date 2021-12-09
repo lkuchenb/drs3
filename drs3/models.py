@@ -19,7 +19,7 @@ in the api."""
 
 import re
 from datetime import datetime
-from typing import List, Literal
+from typing import List, Literal, Optional
 
 from ghga_service_chassis_lib.object_storage_dao import (
     ObjectIdValidationError,
@@ -34,7 +34,7 @@ class DrsObjectBase(BaseModel):
     """
 
     md5_checksum: str
-    size: int
+    size: Optional[int]
 
     class Config:
         """Additional pydantic configs."""

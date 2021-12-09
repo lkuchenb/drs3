@@ -43,7 +43,7 @@ class Config(ApiConfigBase, PubSubConfigBase, PostgresqlConfigBase, S3ConfigBase
     custom_spec_url: Optional[str] = None
 
     service_name: str = "drs3"
-    topic_name_non_staged_file_requested: str = "non_staged_file_requested"
+    topic_name_stage_request: str = "non_staged_file_requested"
 
     s3_outbox_bucket_id: str
 

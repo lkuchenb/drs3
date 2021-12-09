@@ -40,7 +40,7 @@ def test_publish_stage_request(amqp_fixture):  # noqa: F811
     # messages from this service:
 
     downstream_subscriber = amqp_fixture.get_test_subscriber(
-        topic_name=config.topic_name_non_staged_file_requested,
+        topic_name=config.topic_name_stage_request,
         message_schema=schemas.STAGE_REQUEST,
     )
 

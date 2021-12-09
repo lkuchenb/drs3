@@ -30,7 +30,7 @@ def publish_stage_request(drs_object, config):
     Publishes a message to a specified topic
     """
 
-    topic_name = config.topic_name_non_staged_file_requested
+    topic_name = config.topic_name_stage_request
 
     # read json schema:
     with open(
