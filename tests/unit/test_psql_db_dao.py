@@ -19,7 +19,7 @@ import pytest
 
 from drs3.dao.db import DrsObjectAlreadyExistsError, DrsObjectNotFoundError
 
-from ..fixtures.psql import psql_fixture  # noqa: F401
+from ..fixtures import psql_fixture  # noqa: F401
 
 
 def test_get_existing_file_obj(psql_fixture):  # noqa: F811

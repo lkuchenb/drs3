@@ -14,3 +14,5 @@
 # limitations under the License.
 
 """This sub-package contains the core functionality"""
+
+from .main import get_drs_object_serve  # noqa: F401
