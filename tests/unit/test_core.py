@@ -18,6 +18,7 @@
 from typing import Optional, Type
 
 import pytest
+import requests
 
 from drs3.core import get_drs_object_serve
 from drs3.dao import DrsObjectNotFoundError
@@ -38,6 +39,7 @@ from ..fixtures import FILES, get_config, psql_fixture, s3_fixture  # noqa: F401
 def test_get_drs_object_serve(
     file_name: str,
     expected_exception: Optional[Type[BaseException]],
+    expect_none: bool,
     psql_fixture,  # noqa: F811
     s3_fixture,  # noqa: F811
 ):
@@ -48,20 +50,17 @@ def test_get_drs_object_serve(
 
     file = FILES[file_name]
 
-    # drs_id: str,
-    # make_stage_request: Callable[[dict, Config], None],
-    # config: Config = CONFIG,
-
     run = lambda: get_drs_object_serve(
         drs_id=file.file_id, make_stage_request=dummy_function, config=config
     )
 
     if expected_exception is None:
-        run()
-        assert s3_fixture.storage.does_object_exist(
-            object_id=file.id,
-            bucket_id=config.s3_outbox_bucket_id,
-        )
+        response_object = run()
+        if expect_none:
+            assert response_object is None
+        else:
+            response = requests.get(response_object.access_methods[0].access_url)
+            assert response.status_code == 200
     else:
         with pytest.raises(expected_exception):
             run()

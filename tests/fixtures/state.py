@@ -80,7 +80,7 @@ class FileState:
                 ObjectFixture(
                     file_path=self.file_path,
                     bucket_id=DEFAULT_CONFIG.s3_outbox_bucket_id,
-                    object_id=str(self.id),
+                    object_id=str(self.file_id),
                 )
             )
 

@@ -42,6 +42,7 @@ def get_drs_object_serve(
     bucket_id = config.s3_outbox_bucket_id
 
     with ObjectStorage(config=config) as storage:
+
         if storage.does_object_exist(bucket_id, drs_id):
 
             # create presigned url
@@ -52,7 +53,7 @@ def get_drs_object_serve(
                 file_id=drs_id,
                 self_uri=f"{config.drs_self_url}/{drs_id}",
                 size=db_object_info.size,
-                created_time=db_object_info.registration_date,
+                created_time=db_object_info.registration_date.isoformat(),
                 checksums=[Checksum(checksum=db_object_info.md5_checksum, type="md5")],
                 access_methods=[
                     AccessMethod(access_url=AccessURL(url=download_url), type="s3")
