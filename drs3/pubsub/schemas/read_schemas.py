@@ -28,4 +28,4 @@ def read_schema(topic_name: str) -> Dict[str, object]:
         return json.load(schema_file)
 
 
-NON_STAGED_FILE_REQUESTED = read_schema("non_staged_file_requested")
+STAGE_REQUEST = read_schema("non_staged_file_requested")

@@ -42,7 +42,7 @@ class FileState:
     def __init__(
         self,
         id: UUID4,
-        external_id: str,
+        file_id: str,
         grouping_label: str,
         file_path: Path,
         populate_db: bool = True,
@@ -55,7 +55,7 @@ class FileState:
         file should not be added to the database or the storage respectively.
         """
         self.id = id
-        self.external_id = external_id
+        self.file_id = file_id
         self.grouping_label = grouping_label
         self.file_path = file_path
         self.message = message
@@ -68,7 +68,7 @@ class FileState:
 
         self.md5 = calc_md5(self.content)
         self.file_info = models.DrsObjectInitial(
-            external_id=self.external_id,
+            file_id=self.file_id,
             grouping_label=self.grouping_label,
             md5_checksum=self.md5,
             size=1000,  # not the real size
@@ -88,7 +88,7 @@ class FileState:
 FILES: Dict[str, FileState] = {
     "in_registry_in_storage": FileState(
         id=uuid.uuid4(),
-        external_id=get_file_id_example(0),
+        file_id=get_file_id_example(0),
         grouping_label=get_study_id_example(0),
         file_path=TEST_FILE_PATHS[0],
         populate_db=True,
@@ -96,7 +96,7 @@ FILES: Dict[str, FileState] = {
     ),
     "in_registry_not_in_storage": FileState(
         id=uuid.uuid4(),
-        external_id=get_file_id_example(1),
+        file_id=get_file_id_example(1),
         grouping_label=get_study_id_example(1),
         file_path=TEST_FILE_PATHS[1],
         populate_db=True,
@@ -104,7 +104,7 @@ FILES: Dict[str, FileState] = {
     ),
     "not_in_registry_not_in_storage": FileState(
         id=uuid.uuid4(),
-        external_id=get_file_id_example(2),
+        file_id=get_file_id_example(2),
         grouping_label=get_study_id_example(2),
         file_path=TEST_FILE_PATHS[2],
         populate_db=False,

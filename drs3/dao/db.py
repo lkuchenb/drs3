@@ -31,26 +31,26 @@ from . import db_models
 
 
 class DrsObjectNotFoundError(RuntimeError):
-    """Thrown when trying to access a DrsObject with an external ID that doesn't
+    """Thrown when trying to access a DrsObject with a file ID that doesn't
     exist in the database."""
 
-    def __init__(self, external_id: Optional[str]):
+    def __init__(self, file_id: Optional[str]):
         message = (
             "The DRS Object"
-            + (f" with external ID '{external_id}' " if external_id else "")
+            + (f" with file ID '{file_id}' " if file_id else "")
             + " does not exist in the database."
         )
         super().__init__(message)
 
 
 class DrsObjectAlreadyExistsError(RuntimeError):
-    """Thrown when trying to create a new DrsObject with an external ID that already
+    """Thrown when trying to create a new DrsObject with an file ID that already
     exist in the database."""
 
-    def __init__(self, external_id: Optional[str]):
+    def __init__(self, file_id: Optional[str]):
         message = (
             "The DRS object"
-            + (f" with external ID '{external_id}' " if external_id else "")
+            + (f" with file ID '{file_id}' " if file_id else "")
             + " already exist in the database."
         )
         super().__init__(message)
@@ -68,7 +68,7 @@ class DatabaseDao(DaoGenericBase):
         - DrsObjectAlreadyExistsError
     """
 
-    def get_drs_object(self, external_id: str) -> models.DrsObjectInternal:
+    def get_drs_object(self, file_id: str) -> models.DrsObjectInternal:
         """Get DRS object from the database"""
         ...
 
@@ -76,9 +76,9 @@ class DatabaseDao(DaoGenericBase):
         """Register a new DRS object to the database."""
         ...
 
-    def unregister_drs_object(self, external_id: str) -> None:
+    def unregister_drs_object(self, file_id: str) -> None:
         """
-        Unregister a new DRS object with the specified external ID from the database.
+        Unregister a new DRS object with the specified file ID from the database.
         """
         ...
 
@@ -110,22 +110,22 @@ class PostgresDatabase(DatabaseDao):
         # pylint: disable=no-member
         self._session_cm.__exit__(error_type, error_value, error_traceback)
 
-    def _get_orm_drs_object(self, external_id: str) -> db_models.DrsObject:
+    def _get_orm_drs_object(self, file_id: str) -> db_models.DrsObject:
         """Internal method to get the ORM representation of a drs object by specifying
-        its external ID"""
+        its file ID"""
 
-        statement = select(db_models.DrsObject).filter_by(external_id=external_id)
+        statement = select(db_models.DrsObject).filter_by(file_id=file_id)
         orm_drs_object = self._session.execute(statement).scalars().one_or_none()
 
         if orm_drs_object is None:
-            raise DrsObjectNotFoundError(external_id=external_id)
+            raise DrsObjectNotFoundError(file_id=file_id)
 
         return orm_drs_object
 
-    def get_drs_object(self, external_id: str) -> models.DrsObjectInternal:
+    def get_drs_object(self, file_id: str) -> models.DrsObjectInternal:
         """Get DRS object from the database"""
 
-        orm_drs_object = self._get_orm_drs_object(external_id=external_id)
+        orm_drs_object = self._get_orm_drs_object(file_id=file_id)
         return models.DrsObjectInternal.from_orm(orm_drs_object)
 
     def register_drs_object(self, drs_object: models.DrsObjectInitial) -> None:
@@ -133,13 +133,13 @@ class PostgresDatabase(DatabaseDao):
 
         # check for collisions in the database:
         try:
-            self._get_orm_drs_object(external_id=drs_object.external_id)
+            self._get_orm_drs_object(file_id=drs_object.file_id)
         except DrsObjectNotFoundError:
             # this is expected
             pass
         else:
             # this is a problem
-            raise DrsObjectAlreadyExistsError(external_id=drs_object.external_id)
+            raise DrsObjectAlreadyExistsError(file_id=drs_object.file_id)
 
         drs_object_dict = {
             **drs_object.dict(),
@@ -148,10 +148,10 @@ class PostgresDatabase(DatabaseDao):
         orm_drs_object = db_models.DrsObject(**drs_object_dict)
         self._session.add(orm_drs_object)
 
-    def unregister_drs_object(self, external_id: str) -> None:
+    def unregister_drs_object(self, file_id: str) -> None:
         """
-        Unregister a new DRS object with the specified external ID from the database.
+        Unregister a new DRS object with the specified file ID from the database.
         """
 
-        orm_drs_object = self._get_orm_drs_object(external_id=external_id)
+        orm_drs_object = self._get_orm_drs_object(file_id=file_id)
         self._session.delete(orm_drs_object)

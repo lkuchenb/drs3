@@ -40,8 +40,7 @@ def publish_stage_request(drs_object, config):
 
     message = {
         "request_id": "",
-        "file_id": drs_object.external_id,
-        "drs_id": drs_object.external_id,
+        "file_id": drs_object.file_id,
         "timestamp": drs_object.registration_date.isoformat(),
     }
 

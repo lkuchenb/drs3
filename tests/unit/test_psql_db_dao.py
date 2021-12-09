@@ -27,9 +27,7 @@ def test_get_existing_file_obj(psql_fixture):  # noqa: F811
 
     existing_file_obj = psql_fixture.existing_file_infos[0]
 
-    returned_file_obj = psql_fixture.database.get_drs_object(
-        existing_file_obj.external_id
-    )
+    returned_file_obj = psql_fixture.database.get_drs_object(existing_file_obj.file_id)
 
     assert existing_file_obj.md5_checksum == returned_file_obj.md5_checksum
 
@@ -40,7 +38,7 @@ def test_get_non_existing_file_obj(psql_fixture):  # noqa: F811
     non_existing_file_obj = psql_fixture.non_existing_file_infos[0]
 
     with pytest.raises(DrsObjectNotFoundError):
-        psql_fixture.database.get_drs_object(non_existing_file_obj.external_id)
+        psql_fixture.database.get_drs_object(non_existing_file_obj.file_id)
 
 
 def test_register_non_existing_file_obj(psql_fixture):  # noqa: F811
@@ -50,7 +48,7 @@ def test_register_non_existing_file_obj(psql_fixture):  # noqa: F811
 
     psql_fixture.database.register_drs_object(non_existing_file_obj)
     returned_file_obj = psql_fixture.database.get_drs_object(
-        non_existing_file_obj.external_id
+        non_existing_file_obj.file_id
     )
 
     assert non_existing_file_obj.md5_checksum == returned_file_obj.md5_checksum
@@ -72,7 +70,7 @@ def test_unregister_non_existing_file_obj(psql_fixture):  # noqa: F811
     non_existing_file_obj = psql_fixture.non_existing_file_infos[0]
 
     with pytest.raises(DrsObjectNotFoundError):
-        psql_fixture.database.unregister_drs_object(non_existing_file_obj.external_id)
+        psql_fixture.database.unregister_drs_object(non_existing_file_obj.file_id)
 
 
 def test_unregister_existing_file_obj(psql_fixture):  # noqa: F811
@@ -80,8 +78,8 @@ def test_unregister_existing_file_obj(psql_fixture):  # noqa: F811
 
     existing_file_obj = psql_fixture.existing_file_infos[0]
 
-    psql_fixture.database.unregister_drs_object(existing_file_obj.external_id)
+    psql_fixture.database.unregister_drs_object(existing_file_obj.file_id)
 
     # check if file object can no longer be found:
     with pytest.raises(DrsObjectNotFoundError):
-        psql_fixture.database.get_drs_object(existing_file_obj.external_id)
+        psql_fixture.database.get_drs_object(existing_file_obj.file_id)

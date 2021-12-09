@@ -47,18 +47,18 @@ class DrsObjectInitial(DrsObjectBase):
     A model containing the metadata needed to register a new DRS object.
     """
 
-    external_id: str
+    file_id: str
 
     # pylint: disable=no-self-argument,no-self-use
-    @validator("external_id")
-    def check_external_id(cls, value: str):
-        """Checks if the external_id is valid for use as a s3 object id."""
+    @validator("file_id")
+    def check_file_id(cls, value: str):
+        """Checks if the file_id is valid for use as a s3 object id."""
 
         try:
             validate_object_id(value)
         except ObjectIdValidationError as error:
             raise ValueError(
-                f"External ID '{value}' cannot be used as a (S3) object id."
+                f"File ID '{value}' cannot be used as a (S3) object id."
             ) from error
 
         return value
@@ -112,7 +112,7 @@ class DrsObjectServe(BaseModel):
     user.
     """
 
-    id: str  # the external ID
+    file_id: str  # the file ID
     self_uri: str
     size: int
     created_time: str

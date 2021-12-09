@@ -49,7 +49,7 @@ def get_drs_object_serve(
 
             # return DRS Object
             return DrsObjectServe(
-                id=drs_id,
+                file_id=drs_id,
                 self_uri=f"{config.drs_self_url}/{drs_id}",
                 size=db_object_info.size,
                 created_time=db_object_info.registration_date,
