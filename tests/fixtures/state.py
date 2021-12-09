@@ -45,7 +45,6 @@ class FileState:
         external_id: str,
         grouping_label: str,
         file_path: Path,
-        in_outbox: bool,
         populate_db: bool = True,
         populate_storage: bool = True,
         message: Optional[dict] = None,
@@ -59,7 +58,6 @@ class FileState:
         self.external_id = external_id
         self.grouping_label = grouping_label
         self.file_path = file_path
-        self.in_outbox = in_outbox
         self.message = message
         self.populate_db = populate_db
         self.populate_storage = populate_storage
@@ -77,22 +75,39 @@ class FileState:
         )
 
         self.storage_objects: List[ObjectFixture] = []
-        if self.in_outbox:
+        if self.populate_storage:
             self.storage_objects.append(
                 ObjectFixture(
                     file_path=self.file_path,
                     bucket_id=DEFAULT_CONFIG.s3_outbox_bucket_id,
-                    object_id=self.id,
+                    object_id=str(self.id),
                 )
             )
 
 
 FILES: Dict[str, FileState] = {
-    "in_registry": FileState(
+    "in_registry_in_storage": FileState(
         id=uuid.uuid4(),
         external_id=get_file_id_example(0),
         grouping_label=get_study_id_example(0),
         file_path=TEST_FILE_PATHS[0],
-        in_outbox=False,
+        populate_db=True,
+        populate_storage=True,
+    ),
+    "in_registry_not_in_storage": FileState(
+        id=uuid.uuid4(),
+        external_id=get_file_id_example(1),
+        grouping_label=get_study_id_example(1),
+        file_path=TEST_FILE_PATHS[1],
+        populate_db=True,
+        populate_storage=False,
+    ),
+    "not_in_registry_not_in_storage": FileState(
+        id=uuid.uuid4(),
+        external_id=get_file_id_example(2),
+        grouping_label=get_study_id_example(2),
+        file_path=TEST_FILE_PATHS[2],
+        populate_db=False,
+        populate_storage=False,
     ),
 }

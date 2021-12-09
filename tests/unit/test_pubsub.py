@@ -29,11 +29,11 @@ def test_publish_stage_request(amqp_fixture):  # noqa: F811
     config = get_config(sources=[amqp_fixture.config])
 
     drs_object = DrsObjectInternal(
-        id=FILES["in_registry"].id,
-        external_id=FILES["in_registry"].external_id,
+        id=FILES["in_registry_not_in_storage"].id,
+        external_id=FILES["in_registry_not_in_storage"].external_id,
         registration_date=datetime.now(),
-        md5_checksum=FILES["in_registry"].file_info.md5_checksum,
-        size=FILES["in_registry"].file_info.size,
+        md5_checksum=FILES["in_registry_not_in_storage"].file_info.md5_checksum,
+        size=FILES["in_registry_not_in_storage"].file_info.size,
     )
 
     # initialize downstream test service that will receive
@@ -50,4 +50,6 @@ def test_publish_stage_request(amqp_fixture):  # noqa: F811
 
     # expect stage confirmation message:
     downstream_message = downstream_subscriber.subscribe(timeout_after=2)
-    assert downstream_message["file_id"] == FILES["in_registry"].external_id
+    assert (
+        downstream_message["file_id"] == FILES["in_registry_not_in_storage"].external_id
+    )

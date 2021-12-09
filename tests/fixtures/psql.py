@@ -50,7 +50,7 @@ existing_file_infos: List[models.DrsObjectInitial] = []
 non_existing_file_infos: List[models.DrsObjectInitial] = []
 
 for file in state.FILES.values():
-    if file.in_outbox and file.populate_db:
+    if file.populate_db:
         existing_file_infos.append(file.file_info)
     else:
         non_existing_file_infos.append(file.file_info)
