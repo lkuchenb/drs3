@@ -17,3 +17,25 @@
 Package containing integration tests.
 The __init__ module contains a skeleton of the test framework.
 """
+
+
+import unittest
+
+from webtest import TestApp
+
+from drs3.api.main import get_app
+from drs3.config import CONFIG, Config
+
+
+class BaseIntegrationTest(unittest.TestCase):
+    """Base TestCase to inherit from"""
+
+    def setUp(self):
+        """Setup Test Server"""
+        self.config: Config = CONFIG
+        app = get_app(config_settings=self.config)
+        self.testapp = TestApp(app)
+
+    def tearDown(self):
+        """Teardown Test Server"""
+        del self.testapp
