@@ -33,7 +33,7 @@ class BaseIntegrationTest(unittest.TestCase):
     def setUp(self):
         """Setup Test Server"""
         self.config: Config = CONFIG
-        app = get_app(config_settings=self.config)
+        app = get_app(config=self.config)
         self.testapp = TestApp(app)
 
     def tearDown(self):
