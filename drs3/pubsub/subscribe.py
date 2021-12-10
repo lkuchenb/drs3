@@ -20,7 +20,6 @@ Subscriptions to async topics
 import json
 from pathlib import Path
 
-import pika
 from ghga_service_chassis_lib.pubsub import AmqpTopic
 
 from ..config import CONFIG, Config
@@ -60,20 +59,19 @@ def run():
 
     # read json schema:
     with open(
-        HERE / "file_staged_for_download.json", "r", encoding="utf8"
+        HERE / "schemas/file_staged_for_download.json", "r", encoding="utf8"
     ) as schema_file:
         message_schema = json.load(schema_file)
 
     # create a topic object:
     topic = AmqpTopic(
-        connection_params=pika.ConnectionParameters(host=config.host, port=config.port),
-        topic_name="file_staged_for_download",
-        service_name="drs3",
+        config=config,
+        topic_name=config.topic_name_file_staged,
         json_schema=message_schema,
     )
 
     # subscribe:
-    topic.subscribe_for_ever(exec_on_message=process_message)
+    topic.subscribe(exec_on_message=process_message)
 
 
 if __name__ == "__main__":

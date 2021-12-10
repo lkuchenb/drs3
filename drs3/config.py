@@ -44,6 +44,7 @@ class Config(ApiConfigBase, PubSubConfigBase, PostgresqlConfigBase, S3ConfigBase
 
     service_name: str = "drs3"
     topic_name_stage_request: str = "non_staged_file_requested"
+    topic_name_file_staged: str = "file_staged_for_download"
 
     s3_outbox_bucket_id: str
 
