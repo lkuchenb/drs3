@@ -52,7 +52,7 @@ def publish_stage_request(drs_object: models.DrsObjectInternal, config: Config =
     topic = AmqpTopic(
         config=config,
         topic_name=topic_name,
-        json_schema=message_schema,
+        json_schema=schemas.STAGE_REQUEST,
     )
 
     topic.publish(message)
