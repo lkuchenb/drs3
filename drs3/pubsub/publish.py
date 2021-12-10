@@ -17,25 +17,25 @@
 Publish asynchronous topics
 """
 
-import json
 from pathlib import Path
 
 from ghga_service_chassis_lib.pubsub import AmqpTopic
 
 from .. import models
-from ..config import Config, CONFIG
+from ..config import CONFIG, Config
 from . import schemas
 
 HERE = Path(__file__).parent.resolve()
 
 
-def publish_stage_request(drs_object: models.DrsObjectInternal, config: Config = CONFIG):
+def publish_stage_request(
+    drs_object: models.DrsObjectInternal, config: Config = CONFIG
+):
     """
     Publishes a message to a specified topic
     """
 
     topic_name = config.topic_name_stage_request
-
 
     message = {
         "request_id": "",
