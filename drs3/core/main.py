@@ -26,7 +26,7 @@ def get_drs_object_serve(
     drs_id: str,
     make_stage_request: Callable[[dict, Config], None],
     config: Config = CONFIG,
-):
+) -> Optional[DrsObjectServe]:
     """
     Gets the drs object for serving, if it exists in the outbox
     """
