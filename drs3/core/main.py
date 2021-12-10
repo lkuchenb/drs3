@@ -15,7 +15,7 @@
 
 """Main business-logic of this service"""
 
-from typing import Callable
+from typing import Callable, Optional
 
 from ..config import CONFIG, Config
 from ..dao import Database, DrsObjectNotFoundError, ObjectStorage
