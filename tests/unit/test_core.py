@@ -20,6 +20,7 @@ from typing import Optional, Type
 import pytest
 import requests
 
+from drs3.config import Config
 from drs3.core import get_drs_object_serve
 from drs3.dao import DrsObjectNotFoundError
 
@@ -59,12 +60,14 @@ def test_get_drs_object_serve(
         if expect_none:
             assert response_object is None
         else:
-            response = requests.get(response_object.access_methods[0].access_url.url)
+            response = requests.get(
+                response_object.access_methods[0].access_url.url  # type: ignore[union-attr]
+            )
             assert response.status_code == 200
     else:
         with pytest.raises(expected_exception):
             run()
 
 
-def dummy_function(drs_object, config):
+def dummy_function(drs_object, config: Config):
     pass
