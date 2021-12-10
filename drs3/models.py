@@ -73,23 +73,6 @@ class DrsObjectUpdate(DrsObjectBase):
     registration_date: datetime
 
 
-class DrsObjectInitial(DrsObjectBase):
-    """
-    A model containing the metadata needed to register a new DRS object.
-    """
-
-    external_id: str
-
-
-class DrsObjectUpdate(DrsObjectBase):
-    """
-    A model for describing all internally-relevant DrsObject metadata.
-    Only intended for service-internal use.
-    """
-
-    registration_date: datetime
-
-
 class DrsObjectInternal(DrsObjectInitial, DrsObjectUpdate):
     """
     A model for describing all internally-relevant DrsObject metadata.
