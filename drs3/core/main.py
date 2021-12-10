@@ -19,12 +19,18 @@ from typing import Callable, Optional
 
 from ..config import CONFIG, Config
 from ..dao import Database, DrsObjectNotFoundError, ObjectStorage
-from ..models import AccessMethod, AccessURL, Checksum, DrsObjectServe
+from ..models import (
+    AccessMethod,
+    AccessURL,
+    Checksum,
+    DrsObjectInternal,
+    DrsObjectServe,
+)
 
 
 def get_drs_object_serve(
     drs_id: str,
-    make_stage_request: Callable[[dict, Config], None],
+    make_stage_request: Callable[[DrsObjectInternal, Config], None],
     config: Config = CONFIG,
 ) -> Optional[DrsObjectServe]:
     """
