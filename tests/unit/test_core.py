@@ -60,9 +60,7 @@ def test_get_drs_object_serve(
         if expect_none:
             assert response_object is None
         else:
-            response = requests.get(
-                response_object.access_methods[0].access_url.url  # type: ignore[union-attr]
-            )
+            response = requests.get(response_object.access_methods[0].access_url.url)  # type: ignore[union-attr]
             assert response.status_code == 200
     else:
         with pytest.raises(expected_exception):
