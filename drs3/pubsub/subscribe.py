@@ -23,12 +23,12 @@ from pathlib import Path
 import pika
 from ghga_service_chassis_lib.pubsub import AmqpTopic
 
-from ..config import Config, config
+from ..config import CONFIG, Config
 from ..dao import Database, ObjectNotFoundError, ObjectStorage
 
 HERE = Path(__file__).parent.resolve()
 
-CONFIG: Config = config
+config: Config = CONFIG
 
 
 def process_message(message: dict):
@@ -37,21 +37,20 @@ def process_message(message: dict):
 
     # Check if file exists in database
     with Database() as database:
-        db_object_info = database.get_drs_object(message["file_id"])
+        file_id = message["file_id"]
+        db_object_info = database.get_drs_object(file_id)
 
         # Check if file is in outbox
-        with ObjectStorage(config=CONFIG) as storage:
-            if storage.does_object_exist(
-                config.s3_outbox_bucket_id, message["file_id"]
-            ):
+        with ObjectStorage(config=config) as storage:
+            if storage.does_object_exist(config.s3_outbox_bucket_id, file_id):
 
                 # Update information, in case something has changed
-                database.update_drs_object(db_object_info)
+                database.update_drs_object(file_id, db_object_info)
                 return
 
             # Throw error, if the file does not exist in the outbox
             raise ObjectNotFoundError(
-                object_id=message["file_id"],
+                object_id=file_id,
                 bucket_id=message["grouping_label"],
             )
 
