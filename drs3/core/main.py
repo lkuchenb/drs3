@@ -18,7 +18,7 @@
 from typing import Callable, Optional
 
 from ..config import CONFIG, Config
-from ..dao import Database, DrsObjectNotFoundError, ObjectStorage
+from ..dao import Database, DrsObjectNotFoundError, ObjectNotFoundError, ObjectStorage
 from ..models import (
     AccessMethod,
     AccessURL,
@@ -73,3 +73,29 @@ def get_drs_object_serve(
     )
 
     return None
+
+
+def handle_staged_file(file_id, bucket_id, config):
+
+    """
+    Check if the file really is in the outbox,
+    otherwise throw an error
+    """
+
+    # Check if file exists in database
+    with Database() as database:
+        db_object_info = database.get_drs_object(file_id)
+
+        # Check if file is in outbox
+        with ObjectStorage(config=config) as storage:
+            if storage.does_object_exist(config.s3_outbox_bucket_id, file_id):
+
+                # Update information, in case something has changed
+                database.update_drs_object(file_id, db_object_info)
+                return
+
+            # Throw error, if the file does not exist in the outbox
+            raise ObjectNotFoundError(
+                object_id=file_id,
+                bucket_id=bucket_id,
+            )

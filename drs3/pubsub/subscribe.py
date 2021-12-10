@@ -23,35 +23,22 @@ from pathlib import Path
 from ghga_service_chassis_lib.pubsub import AmqpTopic
 
 from ..config import CONFIG, Config
-from ..dao import Database, ObjectNotFoundError, ObjectStorage
+from ..core import handle_staged_file
 
 HERE = Path(__file__).parent.resolve()
 
 config: Config = CONFIG
 
 
-def process_message(message: dict):
+def process_file_staged_message(message: dict):
     """Processes the message by checking if the file really is in the outbox,
     otherwise throwing an error"""
 
-    # Check if file exists in database
-    with Database() as database:
-        file_id = message["file_id"]
-        db_object_info = database.get_drs_object(file_id)
+    file_id = message["file_id"]
 
-        # Check if file is in outbox
-        with ObjectStorage(config=config) as storage:
-            if storage.does_object_exist(config.s3_outbox_bucket_id, file_id):
-
-                # Update information, in case something has changed
-                database.update_drs_object(file_id, db_object_info)
-                return
-
-            # Throw error, if the file does not exist in the outbox
-            raise ObjectNotFoundError(
-                object_id=file_id,
-                bucket_id=message["grouping_label"],
-            )
+    handle_staged_file(
+        file_id=file_id, bucket_id=message["grouping_label"], config=config
+    )
 
 
 def run():
@@ -59,7 +46,7 @@ def run():
 
     # read json schema:
     with open(
-        HERE / "schemas/file_staged_for_download.json", "r", encoding="utf8"
+        HERE / f"schemas/{config.topic_name_file_staged}.json", "r", encoding="utf8"
     ) as schema_file:
         message_schema = json.load(schema_file)
 
@@ -71,7 +58,7 @@ def run():
     )
 
     # subscribe:
-    topic.subscribe(exec_on_message=process_message)
+    topic.subscribe(exec_on_message=process_file_staged_message)
 
 
 if __name__ == "__main__":
