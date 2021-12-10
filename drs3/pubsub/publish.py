@@ -22,10 +22,14 @@ from pathlib import Path
 
 from ghga_service_chassis_lib.pubsub import AmqpTopic
 
+from .. import models
+from ..config import Config, CONFIG
+from . import schemas
+
 HERE = Path(__file__).parent.resolve()
 
 
-def publish_stage_request(drs_object, config):
+def publish_stage_request(drs_object: models.DrsObjectInternal, config: Config = CONFIG):
     """
     Publishes a message to a specified topic
     """
