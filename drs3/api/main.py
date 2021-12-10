@@ -42,7 +42,7 @@ def get_app(config: Config = CONFIG) -> Any:
     """
     Builds the Pyramid app
     Args:
-        config_: Settings for the application
+        config: Settings for the application
     Returns:
         An instance of Pyramid WSGI app
     """
