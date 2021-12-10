@@ -36,11 +36,6 @@ def publish_stage_request(drs_object: models.DrsObjectInternal, config: Config =
 
     topic_name = config.topic_name_stage_request
 
-    # read json schema:
-    with open(
-        f"{HERE}/schemas/{topic_name}.json", "r", encoding="utf-8"
-    ) as schema_file:
-        message_schema = json.load(schema_file)
 
     message = {
         "request_id": "",
