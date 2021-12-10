@@ -13,29 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Package containing integration tests.
-The __init__ module contains a skeleton of the test framework.
-"""
+"""Pub sub fixtures"""
 
+from ghga_service_chassis_lib.pubsub_testing import amqp_fixture_factory
 
-import unittest
+from .config import DEFAULT_CONFIG
 
-from webtest import TestApp
-
-from drs3.api.main import get_app
-from drs3.config import CONFIG, Config
-
-
-class BaseIntegrationTest(unittest.TestCase):
-    """Base TestCase to inherit from"""
-
-    def setUp(self):
-        """Setup Test Server"""
-        self.config: Config = CONFIG
-        app = get_app(config=self.config)
-        self.testapp = TestApp(app)
-
-    def tearDown(self):
-        """Teardown Test Server"""
-        del self.testapp
+amqp_fixture = amqp_fixture_factory(service_name=DEFAULT_CONFIG.service_name)

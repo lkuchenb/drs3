@@ -12,30 +12,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""General testing utilities"""
 
-"""
-Package containing integration tests.
-The __init__ module contains a skeleton of the test framework.
-"""
+from pathlib import Path
 
-
-import unittest
-
-from webtest import TestApp
-
-from drs3.api.main import get_app
-from drs3.config import CONFIG, Config
-
-
-class BaseIntegrationTest(unittest.TestCase):
-    """Base TestCase to inherit from"""
-
-    def setUp(self):
-        """Setup Test Server"""
-        self.config: Config = CONFIG
-        app = get_app(config=self.config)
-        self.testapp = TestApp(app)
-
-    def tearDown(self):
-        """Teardown Test Server"""
-        del self.testapp
+BASE_DIR = Path(__file__).parent.resolve()

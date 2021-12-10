@@ -13,29 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Package containing integration tests.
-The __init__ module contains a skeleton of the test framework.
-"""
+"""Read in schemas from json files"""
+
+import json
+from pathlib import Path
+from typing import Dict
+
+HERE = Path(__file__).parent.resolve()
 
 
-import unittest
-
-from webtest import TestApp
-
-from drs3.api.main import get_app
-from drs3.config import CONFIG, Config
+def read_schema(topic_name: str) -> Dict[str, object]:
+    """Read schemas from file"""
+    with open(HERE / f"{topic_name}.json", "r", encoding="utf8") as schema_file:
+        return json.load(schema_file)
 
 
-class BaseIntegrationTest(unittest.TestCase):
-    """Base TestCase to inherit from"""
-
-    def setUp(self):
-        """Setup Test Server"""
-        self.config: Config = CONFIG
-        app = get_app(config=self.config)
-        self.testapp = TestApp(app)
-
-    def tearDown(self):
-        """Teardown Test Server"""
-        del self.testapp
+STAGE_REQUEST = read_schema("non_staged_file_requested")

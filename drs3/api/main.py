@@ -25,24 +25,28 @@ from typing import Any
 
 from pyramid.config import Configurator
 from pyramid.events import NewRequest
+from pyramid.httpexceptions import HTTPAccepted, HTTPNotFound
 from pyramid.request import Request
 from pyramid.view import view_config
 
-from ..config import Config, config
+from ..config import CONFIG, Config
+from ..core.main import get_drs_object_serve
 from ..custom_openapi3.custom_explorer_view import add_custom_explorer_view
+from ..dao import DrsObjectNotFoundError
 from ..models import DrsObjectServe
+from ..pubsub.publish import publish_stage_request
 from .cors import cors_header_response_callback_factory
 
 
-def get_app(config_: Config = config) -> Any:
+def get_app(config: Config = CONFIG) -> Any:
     """
     Builds the Pyramid app
     Args:
-        config_: Settings for the application
+        config: Settings for the application
     Returns:
         An instance of Pyramid WSGI app
     """
-    api_route = Path(config_.api_route)
+    api_route = Path(config.api_route)
     openapi_spec_path = Path(__file__).parent / "openapi.yaml"
     with Configurator() as pyramid_config:
         pyramid_config.add_directive(
@@ -50,7 +54,7 @@ def get_app(config_: Config = config) -> Any:
         )
 
         pyramid_config.add_subscriber(
-            cors_header_response_callback_factory(config_), NewRequest
+            cors_header_response_callback_factory(config), NewRequest
         )
 
         pyramid_config.include("pyramid_openapi3")
@@ -58,7 +62,7 @@ def get_app(config_: Config = config) -> Any:
             openapi_spec_path, route=str(api_route / "openapi.yaml")
         )
         pyramid_config.pyramid_custom_openapi3_add_explorer(
-            route=str(api_route), custom_spec_url=config_.custom_spec_url
+            route=str(api_route), custom_spec_url=config.custom_spec_url
         )
 
         pyramid_config.add_route("hello", "/")
@@ -75,14 +79,6 @@ def get_app(config_: Config = config) -> Any:
     return pyramid_config.make_wsgi_app()
 
 
-@view_config(route_name="hello", renderer="json", openapi=False, request_method="GET")
-def index(_, __):
-    """
-    Index Enpoint, returns 'Hello World'
-    """
-    return {"content": "Hello World!"}
-
-
 @view_config(
     route_name="objects_id", renderer="json", openapi=True, request_method="GET"
 )
@@ -96,7 +92,29 @@ def get_objects_id(
     Returns:
         An instance of ``DrsReturnObject``
     """
-    ...
+
+    drs_id = request.matchdict["object_id"]
+
+    config: Config = CONFIG
+
+    try:
+        drs_object = get_drs_object_serve(
+            drs_id, make_stage_request=publish_stage_request, config=config
+        )
+    except DrsObjectNotFoundError as object_not_found_error:
+        raise HTTPNotFound(
+            json={
+                "msg": "The requested DRSObject does not exist",
+                "status_code": 404,
+            }
+        ) from object_not_found_error
+
+    if drs_object is not None:
+        # return the drs_object
+        return drs_object
+
+    # tell client to retry after 5 minutes
+    return HTTPAccepted(retry_after="300")
 
 
 @view_config(route_name="health", renderer="json", openapi=False, request_method="GET")

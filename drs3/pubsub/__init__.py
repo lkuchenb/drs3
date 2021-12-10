@@ -17,3 +17,5 @@
 Subpackage defineing functions for publishing to or subscribing from
 asynchronous messaging topics.
 """
+
+from .publish import publish_stage_request  # noqa: F401

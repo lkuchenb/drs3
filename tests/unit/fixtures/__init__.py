@@ -14,7 +14,3 @@
 # limitations under the License.
 
 """Fixtures that exclusively used in unit tests"""
-
-from pathlib import Path
-
-BASE_DIR = Path(__file__).parent.resolve()

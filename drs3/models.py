@@ -19,7 +19,7 @@ in the api."""
 
 import re
 from datetime import datetime
-from typing import List, Literal
+from typing import List, Literal, Optional
 
 from ghga_service_chassis_lib.object_storage_dao import (
     ObjectIdValidationError,
@@ -28,28 +28,13 @@ from ghga_service_chassis_lib.object_storage_dao import (
 from pydantic import UUID4, BaseModel, validator
 
 
-class DrsObjectInitial(BaseModel):
+class DrsObjectBase(BaseModel):
     """
     A model containing the metadata needed to register a new DRS object.
     """
 
-    external_id: str
     md5_checksum: str
-    size: int
-
-    # pylint: disable=no-self-argument,no-self-use
-    @validator("external_id")
-    def check_external_id(cls, value: str):
-        """Checks if the external_id is valid for use as a s3 object id."""
-
-        try:
-            validate_object_id(value)
-        except ObjectIdValidationError as error:
-            raise ValueError(
-                f"External ID '{value}' cannot be used as a (S3) object id."
-            ) from error
-
-        return value
+    size: Optional[int]
 
     class Config:
         """Additional pydantic configs."""
@@ -57,14 +42,44 @@ class DrsObjectInitial(BaseModel):
         orm_mode = True
 
 
-class DrsObjectInternal(DrsObjectInitial):
+class DrsObjectInitial(DrsObjectBase):
+    """
+    A model containing the metadata needed to register a new DRS object.
+    """
+
+    file_id: str
+
+    # pylint: disable=no-self-argument,no-self-use
+    @validator("file_id")
+    def check_file_id(cls, value: str):
+        """Checks if the file_id is valid for use as a s3 object id."""
+
+        try:
+            validate_object_id(value)
+        except ObjectIdValidationError as error:
+            raise ValueError(
+                f"File ID '{value}' cannot be used as a (S3) object id."
+            ) from error
+
+        return value
+
+
+class DrsObjectUpdate(DrsObjectBase):
+    """
+    A model for describing all internally-relevant DrsObject metadata.
+    Only intended for service-internal use.
+    """
+
+    registration_date: datetime
+
+
+class DrsObjectInternal(DrsObjectInitial, DrsObjectUpdate):
     """
     A model for describing all internally-relevant DrsObject metadata.
     Only intended for service-internal use.
     """
 
     id: UUID4
-    registration_date: datetime
 
 
 class AccessURL(BaseModel):
@@ -97,7 +112,7 @@ class DrsObjectServe(BaseModel):
     user.
     """
 
-    id: str  # the external ID
+    file_id: str  # the file ID
     self_uri: str
     size: int
     created_time: str

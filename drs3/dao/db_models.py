@@ -40,7 +40,7 @@ class DrsObject(Base):
         primary_key=True,
         doc="Service-internal file ID.",
     )
-    external_id = Column(
+    file_id = Column(
         String,
         nullable=False,
         unique=True,
@@ -58,7 +58,7 @@ class DrsObject(Base):
     )
     size = Column(
         Integer,
-        nullable=False,
+        nullable=True,
         default=None,
         doc="Size of the object content in bytes.",
     )

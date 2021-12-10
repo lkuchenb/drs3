@@ -13,9 +13,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Fixtures that exclusively used in integration tests"""
-import os
-
-# get URL to test db from environment variable:
-db_url = os.getenv("DB_URL")
-assert db_url, 'Could not find environment variable "SQLALCHEMY_TEST_URL"'
+"""Fixtures that are exclusively used in integration tests"""
