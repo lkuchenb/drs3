@@ -32,7 +32,7 @@ from ..fixtures import (  # noqa: F401
 
 
 def test_publish_stage_request(amqp_fixture):  # noqa: F811
-    """Test `subscribe_stage_requests` function"""
+    """Test publishing `non_staged_file_requested` topic"""
 
     config = get_config(sources=[amqp_fixture.config])
 
@@ -62,7 +62,7 @@ def test_publish_stage_request(amqp_fixture):  # noqa: F811
 
 
 def test_subscribe_file_staged(psql_fixture, s3_fixture, amqp_fixture):  # noqa: F811
-
+    """Test subscribing to `file_staged_for_download` topic"""
     config = get_config(
         sources=[psql_fixture.config, s3_fixture.config, amqp_fixture.config]
     )
