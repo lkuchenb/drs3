@@ -19,3 +19,4 @@ asynchronous messaging topics.
 """
 
 from .publish import publish_stage_request  # noqa: F401
+from .subscribe import subscribe_file_staged  # noqa: F401

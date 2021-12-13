@@ -56,7 +56,3 @@ def subscribe_file_staged(config: Config = CONFIG, run_forever: bool = True) -> 
         ),
         run_forever=run_forever,
     )
-
-
-if __name__ == "__main__":
-    subscribe_file_staged()

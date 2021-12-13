@@ -16,6 +16,7 @@
 """Test data"""
 
 import uuid
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -93,6 +94,13 @@ FILES: Dict[str, FileState] = {
         file_path=TEST_FILE_PATHS[0],
         populate_db=True,
         populate_storage=True,
+        message={
+            "file_id": get_file_id_example(0),
+            "grouping_label": get_study_id_example(0),
+            "md5_checksum": "3851c5cb7518a2ff67ab5581c3e01f2f",  # fake checksum
+            "request_id": "my_test_file_staged_001",
+            "timestamp": datetime.now().isoformat(),
+        },
     ),
     "in_registry_not_in_storage": FileState(
         id=uuid.uuid4(),

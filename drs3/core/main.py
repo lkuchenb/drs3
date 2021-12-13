@@ -84,8 +84,9 @@ def handle_staged_file(message: Dict[str, Any], config: Config = CONFIG):
 
     file_id = message["file_id"]
     md5_checksum = message["md5_checksum"]
+
     # Check if file exists in database
-    with Database() as database:
+    with Database(config=config) as database:
         db_object_info = database.get_drs_object(file_id)
 
         # Check if file is in outbox
@@ -93,8 +94,9 @@ def handle_staged_file(message: Dict[str, Any], config: Config = CONFIG):
             if storage.does_object_exist(config.s3_outbox_bucket_id, file_id):
 
                 db_object_info.md5_checksum = md5_checksum
+
                 # Update information, in case something has changed
-                database.update_drs_object(file_id, db_object_info)
+                database.update_drs_object(file_id=file_id, drs_object=db_object_info)
                 return
 
             # Throw error, if the file does not exist in the outbox
