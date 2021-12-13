@@ -21,8 +21,8 @@ import pytest
 import requests
 
 from drs3.config import Config
-from drs3.core import get_drs_object_serve
-from drs3.dao import DrsObjectNotFoundError
+from drs3.core import get_drs_object_serve, handle_staged_file
+from drs3.dao import DrsObjectNotFoundError, ObjectNotFoundError
 
 from ..fixtures import FILES, get_config, psql_fixture, s3_fixture  # noqa: F401
 
@@ -62,6 +62,33 @@ def test_get_drs_object_serve(
         else:
             response = requests.get(response_object.access_methods[0].access_url.url)  # type: ignore[union-attr]
             assert response.status_code == 200
+    else:
+        with pytest.raises(expected_exception):
+            run()
+
+
+@pytest.mark.parametrize(
+    "file_name,expected_exception",
+    [
+        ("in_registry_in_storage", None),
+        ("in_registry_not_in_storage", ObjectNotFoundError),
+        ("not_in_registry_not_in_storage", DrsObjectNotFoundError),
+    ],
+)
+def test_handle_staged_file(
+    file_name: str,
+    expected_exception: Optional[Type[BaseException]],
+    psql_fixture,  # noqa: F811
+    s3_fixture,  # noqa: F811
+):
+    # get config
+    config = get_config(sources=[psql_fixture.config, s3_fixture.config])
+    message = FILES[file_name].message
+
+    run = lambda: handle_staged_file(message=message, config=config)
+
+    if expected_exception is None:
+        run()
     else:
         with pytest.raises(expected_exception):
             run()
