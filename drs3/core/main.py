@@ -15,10 +15,10 @@
 
 """Main business-logic of this service"""
 
-from typing import Callable, Optional
+from typing import Any, Callable, Dict, Optional
 
 from ..config import CONFIG, Config
-from ..dao import Database, DrsObjectNotFoundError, ObjectStorage
+from ..dao import Database, DrsObjectNotFoundError, ObjectNotFoundError, ObjectStorage
 from ..models import (
     AccessMethod,
     AccessURL,
@@ -73,3 +73,34 @@ def get_drs_object_serve(
     )
 
     return None
+
+
+def handle_staged_file(message: Dict[str, Any], config: Config = CONFIG):
+    """
+    Check if the file really is in the outbox,
+    if it is, update properties in storage
+    otherwise throw an error
+    """
+
+    file_id = message["file_id"]
+    md5_checksum = message["md5_checksum"]
+
+    # Check if file exists in database
+    with Database(config=config) as database:
+        db_object_info = database.get_drs_object(file_id)
+
+        # Check if file is in outbox
+        with ObjectStorage(config=config) as storage:
+            if storage.does_object_exist(config.s3_outbox_bucket_id, file_id):
+
+                db_object_info.md5_checksum = md5_checksum
+
+                # Update information, in case something has changed
+                database.update_drs_object(file_id=file_id, drs_object=db_object_info)
+                return
+
+            # Throw error, if the file does not exist in the outbox
+            raise ObjectNotFoundError(
+                object_id=file_id,
+                bucket_id=config.s3_outbox_bucket_id,
+            )

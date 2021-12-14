@@ -16,8 +16,9 @@
 """Test data"""
 
 import uuid
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from ghga_service_chassis_lib.object_storage_dao_testing import ObjectFixture, calc_md5
 from ghga_service_chassis_lib.utils import TEST_FILE_PATHS
@@ -47,7 +48,7 @@ class FileState:
         file_path: Path,
         populate_db: bool = True,
         populate_storage: bool = True,
-        message: Optional[dict] = None,
+        message: dict = {},
     ):
         """
         Initialize file state and create imputed attributes.
@@ -93,6 +94,13 @@ FILES: Dict[str, FileState] = {
         file_path=TEST_FILE_PATHS[0],
         populate_db=True,
         populate_storage=True,
+        message={
+            "file_id": get_file_id_example(0),
+            "grouping_label": get_study_id_example(0),
+            "md5_checksum": "3851c5cb7518a2ff67ab5581c3e01f2f",  # fake checksum
+            "request_id": "my_test_file_staged_001",
+            "timestamp": datetime.now().isoformat(),
+        },
     ),
     "in_registry_not_in_storage": FileState(
         id=uuid.uuid4(),
@@ -101,6 +109,13 @@ FILES: Dict[str, FileState] = {
         file_path=TEST_FILE_PATHS[1],
         populate_db=True,
         populate_storage=False,
+        message={
+            "file_id": get_file_id_example(1),
+            "grouping_label": get_study_id_example(1),
+            "md5_checksum": "3851c5cb7518a2ff67ab5581c3e01f2f",  # fake checksum
+            "request_id": "my_test_file_staged_002",
+            "timestamp": datetime.now().isoformat(),
+        },
     ),
     "not_in_registry_not_in_storage": FileState(
         id=uuid.uuid4(),
@@ -109,5 +124,12 @@ FILES: Dict[str, FileState] = {
         file_path=TEST_FILE_PATHS[2],
         populate_db=False,
         populate_storage=False,
+        message={
+            "file_id": get_file_id_example(2),
+            "grouping_label": get_study_id_example(2),
+            "md5_checksum": "3851c5cb7518a2ff67ab5581c3e01f2f",  # fake checksum
+            "request_id": "my_test_file_staged_003",
+            "timestamp": datetime.now().isoformat(),
+        },
     ),
 }

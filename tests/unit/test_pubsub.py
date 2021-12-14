@@ -17,14 +17,22 @@
 
 from datetime import datetime
 
-from drs3.models import DrsObjectInternal
-from drs3.pubsub import publish_stage_request, schemas
+from ghga_service_chassis_lib.utils import exec_with_timeout
 
-from ..fixtures import FILES, amqp_fixture, get_config  # noqa: F401
+from drs3.models import DrsObjectInternal
+from drs3.pubsub import publish_stage_request, schemas, subscribe_file_staged
+
+from ..fixtures import (  # noqa: F401
+    FILES,
+    amqp_fixture,
+    get_config,
+    psql_fixture,
+    s3_fixture,
+)
 
 
 def test_publish_stage_request(amqp_fixture):  # noqa: F811
-    """Test `subscribe_stage_requests` function"""
+    """Test publishing `non_staged_file_requested` topic"""
 
     config = get_config(sources=[amqp_fixture.config])
 
@@ -51,3 +59,24 @@ def test_publish_stage_request(amqp_fixture):  # noqa: F811
     # expect stage confirmation message:
     downstream_message = downstream_subscriber.subscribe(timeout_after=2)
     assert downstream_message["file_id"] == FILES["in_registry_not_in_storage"].file_id
+
+
+def test_subscribe_file_staged(psql_fixture, s3_fixture, amqp_fixture):  # noqa: F811
+    """Test subscribing to `file_staged_for_download` topic"""
+    config = get_config(
+        sources=[psql_fixture.config, s3_fixture.config, amqp_fixture.config]
+    )
+
+    # initialize upstream and downstream test services that will publish or receive
+    upstream_publisher = amqp_fixture.get_test_publisher(
+        topic_name=config.topic_name_file_staged,
+        message_schema=schemas.FILE_STAGED,
+    )
+
+    # publish a stage request:
+    upstream_publisher.publish(FILES["in_registry_in_storage"].message)
+
+    exec_with_timeout(
+        func=lambda: subscribe_file_staged(config=config, run_forever=False),
+        timeout_after=2,
+    )

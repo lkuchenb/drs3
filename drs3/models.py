@@ -114,7 +114,7 @@ class DrsObjectServe(BaseModel):
 
     file_id: str  # the file ID
     self_uri: str
-    size: int
+    size: Optional[int]
     created_time: str
     checksums: List[Checksum]
     access_methods: List[AccessMethod]
