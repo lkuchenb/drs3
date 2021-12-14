@@ -73,7 +73,6 @@ def test_subscribe_file_staged(psql_fixture, s3_fixture, amqp_fixture):  # noqa:
         message_schema=schemas.FILE_STAGED,
     )
 
-    print(psql_fixture.existing_file_infos[0])
 
     # publish a stage request:
     upstream_publisher.publish(FILES["in_registry_in_storage"].message)
