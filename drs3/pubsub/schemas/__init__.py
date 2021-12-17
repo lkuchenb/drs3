@@ -15,5 +15,9 @@
 
 """Package containing schemas."""
 
-from .read_schemas import FILE_STAGED  # noqa: F401
-from .read_schemas import STAGE_REQUEST  # noqa: F401
+from .read_schemas import (  # noqa: F401
+    DRS_OBJECT_REGISTERED,
+    FILE_REGISTERED,
+    FILE_STAGED,
+    STAGE_REQUEST,
+)

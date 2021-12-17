@@ -48,6 +48,7 @@ class DrsObjectInitial(DrsObjectBase):
     """
 
     file_id: str
+    registration_date: datetime
 
     # pylint: disable=no-self-argument,no-self-use
     @validator("file_id")
@@ -64,16 +65,7 @@ class DrsObjectInitial(DrsObjectBase):
         return value
 
 
-class DrsObjectUpdate(DrsObjectBase):
-    """
-    A model for describing all internally-relevant DrsObject metadata.
-    Only intended for service-internal use.
-    """
-
-    registration_date: datetime
-
-
-class DrsObjectInternal(DrsObjectInitial, DrsObjectUpdate):
+class DrsObjectInternal(DrsObjectInitial):
     """
     A model for describing all internally-relevant DrsObject metadata.
     Only intended for service-internal use.

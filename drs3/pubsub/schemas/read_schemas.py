@@ -30,3 +30,5 @@ def read_schema(topic_name: str) -> Dict[str, object]:
 
 STAGE_REQUEST = read_schema("non_staged_file_requested")
 FILE_STAGED = read_schema("file_staged_for_download")
+FILE_REGISTERED = read_schema("file_internally_registered")
+DRS_OBJECT_REGISTERED = read_schema("drs_object_registered")

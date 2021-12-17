@@ -15,4 +15,8 @@
 
 """This sub-package contains the core functionality"""
 
-from .main import get_drs_object_serve, handle_staged_file  # noqa: F401
+from .main import (  # noqa: F401
+    get_drs_object_serve,
+    handle_registered_file,
+    handle_staged_file,
+)

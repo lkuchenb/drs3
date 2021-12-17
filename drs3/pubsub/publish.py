@@ -51,3 +51,30 @@ def publish_stage_request(
     )
 
     topic.publish(message)
+
+
+def publish_drs_object_registered(
+    drs_object: models.DrsObjectInitial, config: Config = CONFIG
+):
+    """
+    Publishes a message to a specified topic
+    """
+
+    topic_name = config.topic_name_drs_object_registered
+
+    message = {
+        "request_id": "",
+        "file_id": drs_object.file_id,
+        "timestamp": drs_object.registration_date.isoformat(),
+        "md5_checksum": drs_object.md5_checksum,
+        "drs_uri": f"{config.drs_self_url}/{drs_object.file_id}",
+    }
+
+    # create a topic object:
+    topic = AmqpTopic(
+        config=config,
+        topic_name=topic_name,
+        json_schema=schemas.DRS_OBJECT_REGISTERED,
+    )
+
+    topic.publish(message)

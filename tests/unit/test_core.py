@@ -21,8 +21,13 @@ import pytest
 import requests
 
 from drs3.config import Config
-from drs3.core import get_drs_object_serve, handle_staged_file
-from drs3.dao import DrsObjectNotFoundError, ObjectNotFoundError
+from drs3.core import get_drs_object_serve, handle_registered_file, handle_staged_file
+from drs3.dao import (
+    DrsObjectAlreadyExistsError,
+    DrsObjectNotFoundError,
+    ObjectNotFoundError,
+)
+from drs3.models import DrsObjectInitial
 
 from ..fixtures import FILES, get_config, psql_fixture, s3_fixture  # noqa: F401
 
@@ -89,6 +94,42 @@ def test_handle_staged_file(
 
     if expected_exception is None:
         run()
+    else:
+        with pytest.raises(expected_exception):
+            run()
+
+
+@pytest.mark.parametrize(
+    "file_name,expected_exception",
+    [
+        ("in_registry_in_storage", DrsObjectAlreadyExistsError),
+        ("in_registry_not_in_storage", DrsObjectAlreadyExistsError),
+        ("not_in_registry_not_in_storage", None),
+    ],
+)
+def test_handle_registered_file(
+    file_name: str,
+    expected_exception: Optional[Type[BaseException]],
+    psql_fixture,  # noqa: F811
+    s3_fixture,  # noqa: F811
+):
+    # get config
+    config = get_config(sources=[psql_fixture.config, s3_fixture.config])
+    drs_object = DrsObjectInitial(
+        file_id=FILES[file_name].message["file_id"],
+        registration_date=FILES[file_name].message["timestamp"],
+        md5_checksum=FILES[file_name].message["md5_checksum"],
+        size=1000,
+    )
+
+    run = lambda: handle_registered_file(
+        drs_object=drs_object, publish_object_registered=dummy_function, config=config
+    )
+
+    if expected_exception is None:
+        run()
+        assert psql_fixture.database.get_drs_object(drs_object.file_id)
+
     else:
         with pytest.raises(expected_exception):
             run()

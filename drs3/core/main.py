@@ -23,6 +23,7 @@ from ..models import (
     AccessMethod,
     AccessURL,
     Checksum,
+    DrsObjectInitial,
     DrsObjectInternal,
     DrsObjectServe,
 )
@@ -73,6 +74,24 @@ def get_drs_object_serve(
     )
 
     return None
+
+
+def handle_registered_file(
+    drs_object: DrsObjectInitial,
+    publish_object_registered: Callable[[DrsObjectInitial, Config], None],
+    config: Config = CONFIG,
+):
+    """
+    Add a new entry, based on the processed message, to the database and then publish
+    a message that we did so
+    """
+
+    # write file entry to database
+    with Database(config=config) as database:
+        database.register_drs_object(drs_object)
+
+    # publish message that the drs file has been registered
+    publish_object_registered(drs_object, config)
 
 
 def handle_staged_file(message: Dict[str, Any], config: Config = CONFIG):
