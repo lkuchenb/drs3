@@ -13,4 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Fixtures that are used in both integration and unit tests"""
+"""Fixtures that can be used in both unit and integration tests"""
+
+from .config import DEFAULT_CONFIG, get_config  # noqa: F401
+from .psql import psql_fixture  # noqa: F401
+from .pubsub import amqp_fixture  # noqa: F401
+from .s3 import s3_fixture  # noqa: F401
+from .state import FILES  # noqa: F401

@@ -15,29 +15,21 @@
 
 """Test the api module"""
 
-from fastapi import status
-from fastapi.testclient import TestClient
 
-from my_microservice.api.main import app
+from . import BaseIntegrationTest
 
 
-def test_index():
-    """Test the index endpoint"""
+class TestBase(BaseIntegrationTest):
+    """Test whether Basic API functions are reachable."""
 
-    client = TestClient(app)
-    response = client.get("/")
+    def test_swagger_api_loaded(self):
+        """Swagger's API Explorer should be served on the api_route"""
+        response = self.testapp.get(self.config.api_route, status=200)
+        assert (
+            "<title>Swagger UI</title>" in response.text
+        ), "Swagger UI could not be loaded"
 
-    assert response.status_code == status.HTTP_200_OK
-    assert response.text == '"Hello World."'
-
-
-def test_greet():
-    """Test the greet endpoint"""
-
-    name = "Friendly Tester"
-
-    client = TestClient(app)
-    response = client.get(f"/greet/{name}")
-
-    assert response.status_code == status.HTTP_200_OK
-    assert name in response.json()["message"]
+    def test_health(self):
+        """The health check should be up, running and served on /health"""
+        response = self.testapp.get("/health", status=200)
+        assert response.json == {"status": "OK"}

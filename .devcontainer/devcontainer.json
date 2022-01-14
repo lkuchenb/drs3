@@ -16,9 +16,9 @@
 				"previewLimit": 50,
 				"server": "localhost",
 				"port": 5432,
-				"database": "postgres",
-				"username": "postgres",
-				"password": "postgres"
+				"database": "storage",
+				"username": "admin",
+				"password": "admin"
 			}
 		],
 		"python.pythonPath": "/usr/local/bin/python",
@@ -37,6 +37,9 @@
 		"python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
 		"python.testing.pytestPath": "/usr/local/py-utils/bin/pytest",
 		"editor.renderWhitespace": "all",
+		"editor.rulers": [
+			88
+		],
 		"licenser.license": "AL2",
 		"licenser.author": "Universität Tübingen, DKFZ and EMBL\nfor the German Human Genome-Phenome Archive (GHGA)",
 	},
@@ -60,7 +63,7 @@
 		"EditorConfig.EditorConfig"
 	],
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [5000, 5432],
+	// "forwardPorts": [5432],
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "dev_install",
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
