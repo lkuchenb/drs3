@@ -58,7 +58,7 @@ jobs:
         id: docker_build
         with:
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64/v8
           tags: "lkuchenb/${{ github.event.repository.name }}:${{ needs.get_commit_version.outputs.version }},lkuchenb/${{ github.event.repository.name }}:${{ needs.get_commit_version.outputs.branch }}"
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
